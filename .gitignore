@@ -1,0 +1,11 @@
+# Visual Studio
+.vs
+*.user
+cli/Debug
+cli/Release
+cli/x64
+cli/enc_temp_folder
+
+# Artefacts
+*.wav
+*.mid
