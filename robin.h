@@ -233,7 +233,7 @@ extern "C" {
     const float press_time = (float)(inst->sample_index - voice->press_index) * inst->inv_sample_rate;
 
     for(uintptr_t i = 0; i < RBN_ENVPT_COUNT; i++) {
-      if(envelope->points[i].time > press_time) {
+      if(voice->release_index == UINT64_MAX && envelope->points[i].time > press_time) {
         const float next_time = envelope->points[i].time;
         const float next_value = envelope->points[i].value;
         const float time_to_next = next_time - press_time;
