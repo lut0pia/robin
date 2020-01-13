@@ -494,7 +494,7 @@ extern "C" {
     for(uintptr_t i = 0; i < RBN_VOICE_COUNT; i++) {
       rbn_voice* voice = inst->voices + i;
       const int active = voice->inactive_index > inst->sample_index;
-      if(!active || (active && voice->channel == channel && voice->key == key)) {
+      if(!active) {
         voice->inactive_index = UINT64_MAX;
         voice->press_index = inst->sample_index;
         voice->release_index = UINT64_MAX;
