@@ -258,8 +258,9 @@ extern "C" {
     if(envelope->release_time > 0.f) {
       const float release_time = (float)(inst->sample_index - voice->release_index) * inst->inv_sample_rate;
       const float time_to_zero = envelope->release_time - release_time;
+      const float samples_to_zero = time_to_zero * inst->config.sample_rate;
 
-      *rate = -current / (time_to_zero * inst->config.sample_rate);
+      *rate = -current / (samples_to_zero < RBN_BLOCK_SAMPLES ? RBN_BLOCK_SAMPLES : samples_to_zero);
     } else { // Go to zero
       *rate = -current / RBN_BLOCK_SAMPLES;
     }
