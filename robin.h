@@ -121,6 +121,7 @@ extern "C" {
   typedef struct rbn_voice {
     float phases[RBN_OPERATOR_COUNT];
     float values[RBN_OPERATOR_COUNT];
+    float volumes[RBN_OPERATOR_COUNT];
     uint64_t press_index;
     uint64_t release_index;
     uint64_t inactive_index;
@@ -226,24 +227,18 @@ extern "C" {
     voice->base_freq_rate = frequency / inst->config.sample_rate;
   }
 
-  static void rbn_compute_envelope(const rbn_instance* inst, const rbn_voice* voice, const rbn_envelope* envelope, float* current, float* rate) {
+  static void rbn_compute_envelope(const rbn_instance* inst, const rbn_voice* voice, const rbn_envelope* envelope, float current, float* rate) {
     float sustain_value = 0.f;
     float sustain_time = 0.f;
-    const uint64_t press_samples = inst->sample_index - voice->press_index;
-    const float press_time = (float)press_samples * inst->inv_sample_rate;
+    const float press_time = (float)(inst->sample_index - voice->press_index) * inst->inv_sample_rate;
 
     for(uintptr_t i = 0; i < RBN_ENVPT_COUNT; i++) {
       if(envelope->points[i].time > press_time) {
         const float next_time = envelope->points[i].time;
         const float next_value = envelope->points[i].value;
-        const float prev_time = i > 0 ? envelope->points[i - 1].time : 0.f;
-        const float prev_value = i > 0 ? envelope->points[i - 1].value : 0.f;
-        const float time_delta = next_time - prev_time;
-        const float value_delta = next_value - prev_value;
+        const float time_to_next = next_time - press_time;
 
-        *current = prev_value + value_delta * ((press_time - prev_time) / time_delta);
-        *rate = (value_delta / time_delta) * inst->inv_sample_rate;
-
+        *rate = (next_value - current) / (time_to_next * inst->config.sample_rate);
         return;
       }
 
@@ -256,26 +251,22 @@ extern "C" {
     }
 
     if(voice->release_index == UINT64_MAX || envelope->release_time < 0.f) {
-      *current = sustain_value;
-      *rate = 0.f;
+      *rate = (sustain_value - current) / RBN_BLOCK_SAMPLES;
       return;
     }
 
     if(envelope->release_time > 0.f) {
-      const uint64_t release_samples = inst->sample_index - voice->release_index;
-      const float release_time = (float)release_samples * inst->inv_sample_rate;
+      const float release_time = (float)(inst->sample_index - voice->release_index) * inst->inv_sample_rate;
+      const float time_to_zero = envelope->release_time - release_time;
 
-      *current = sustain_value - sustain_value * (release_time / envelope->release_time);
-      *rate = (-sustain_value / envelope->release_time) * inst->inv_sample_rate;
-    } else {
-      *current = 0.f;
-      *rate = 0.f;
+      *rate = -current / (time_to_zero * inst->config.sample_rate);
+    } else { // Go to zero
+      *rate = -current / RBN_BLOCK_SAMPLES;
     }
   }
 
   static rbn_result rbn_render_voice_block(rbn_instance* inst, rbn_voice* voice, rbn_channel* channel, float* samples) {
     float values[RBN_OPERATOR_COUNT];
-    float volumes[RBN_OPERATOR_COUNT];
     float volume_rates[RBN_OPERATOR_COUNT];
 
     const float base_freq_rate = voice->base_freq_rate;
@@ -283,9 +274,10 @@ extern "C" {
 
     const rbn_program* program = voice->program;
     const rbn_operator* operators = program->operators;
+    float* volumes = voice->volumes;
 
     for(uintptr_t i = 0; i < RBN_OPERATOR_COUNT; i++) {
-      rbn_compute_envelope(inst, voice, &operators[i].volume_envelope, volumes + i, volume_rates + i);
+      rbn_compute_envelope(inst, voice, &operators[i].volume_envelope, volumes[i], volume_rates + i);
     }
 
     for(uintptr_t i = 0; i < RBN_BLOCK_SAMPLES; i++) {
@@ -509,6 +501,7 @@ extern "C" {
         voice->program = inst->programs + inst->channels[channel].program;
         RBN_MEMSET(voice->phases, 0, sizeof(float) * RBN_OPERATOR_COUNT);
         RBN_MEMSET(voice->values, 0, sizeof(float) * RBN_OPERATOR_COUNT);
+        RBN_MEMSET(voice->volumes, 0, sizeof(float) * RBN_OPERATOR_COUNT);
         voice->channel = channel;
         voice->key = key;
         voice->velocity = velocity;
