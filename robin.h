@@ -18,12 +18,20 @@ extern "C" {
 #define RBNDEF extern
 #endif
 
-#ifndef RBN_CHAN_COUNT
+#ifdef RBN_GENERAL_MIDI
 #define RBN_CHAN_COUNT 16
+#define RBN_PROGRAM_COUNT 174 // 128 tonal instruments + 46 percussive sounds
+#define RBN_OPERATOR_COUNT 8
+#define RBN_ENVPT_COUNT 6
+#define RBN_FILTER_COUNT 4
+#endif
+
+#ifndef RBN_CHAN_COUNT
+#define RBN_CHAN_COUNT 1
 #endif
 
 #ifndef RBN_PROGRAM_COUNT
-#define RBN_PROGRAM_COUNT 128
+#define RBN_PROGRAM_COUNT 1
 #endif
 
 #ifndef RBN_VOICE_COUNT
@@ -115,6 +123,7 @@ extern "C" {
     float fil_matrix[RBN_OPERATOR_COUNT][RBN_FILTER_COUNT];
 
     // Cached
+    uint64_t sustain_samples;
     uint64_t release_samples;
   } rbn_program;
 
@@ -231,9 +240,10 @@ extern "C" {
     float sustain_value = 0.f;
     float sustain_time = 0.f;
     const float press_time = (float)(inst->sample_index - voice->press_index) * inst->inv_sample_rate;
+    const int has_released = voice->release_index != UINT64_MAX && voice->release_index <= inst->sample_index;
 
     for(uintptr_t i = 0; i < RBN_ENVPT_COUNT; i++) {
-      if(voice->release_index == UINT64_MAX && envelope->points[i].time > press_time) {
+      if(!has_released && envelope->points[i].time > press_time) {
         const float next_time = envelope->points[i].time;
         const float next_value = envelope->points[i].value;
         const float time_to_next = next_time - press_time;
@@ -250,7 +260,7 @@ extern "C" {
       }
     }
 
-    if(voice->release_index == UINT64_MAX || envelope->release_time < 0.f) {
+    if(!has_released || envelope->release_time < 0.f) {
       *rate = (sustain_value - current) / RBN_BLOCK_SAMPLES;
       return;
     }
@@ -314,12 +324,7 @@ extern "C" {
     for(uintptr_t v = 0; v < RBN_VOICE_COUNT; v++) {
       rbn_voice* voice = inst->voices + v;
       if(voice->inactive_index > inst->sample_index) {
-        rbn_channel* channel = inst->channels + voice->channel;
-        if(voice->channel != 9) {
-          rbn_render_voice_block(inst, voice, channel, samples);
-        } else { // Percussions
-
-        }
+        rbn_render_voice_block(inst, voice, inst->channels + voice->channel, samples);
       }
     }
     return rbn_success;
@@ -353,7 +358,7 @@ extern "C" {
       //program->op_matrix[1][0] = 1.f;
     }
 
-#if 1
+#ifdef RBN_GENERAL_MIDI
     rbn_program* piano = inst->programs + 0;
     //piano->op_matrix[1][0] = 0.01f;
     RBN_MEMCPY(inst->programs + 1, piano, sizeof(rbn_program));
@@ -404,6 +409,32 @@ extern "C" {
     RBN_MEMCPY(inst->programs + 37, bass, sizeof(rbn_program));
     RBN_MEMCPY(inst->programs + 38, bass, sizeof(rbn_program));
     RBN_MEMCPY(inst->programs + 39, bass, sizeof(rbn_program));
+
+    // Default percussion
+    for(uintptr_t i = 128; i < RBN_PROGRAM_COUNT; i++) {
+      rbn_program* perc = inst->programs + i;
+      perc->operators[0].freq_ratio = 1.f;
+      perc->operators[0].output = 1.f;
+      perc->operators[0].volume_envelope.points[0].time = 0.001f;
+      perc->operators[0].volume_envelope.points[0].value = 1.f;
+      perc->operators[0].volume_envelope.points[1].time = 0.1f;
+      perc->operators[0].volume_envelope.points[1].value = 0.f;
+      perc->operators[0].volume_envelope.release_time = 0.1f;
+      perc->operators[1].freq_ratio = 298.f;
+      perc->operators[1].volume_envelope.points[0].time = 0.001f;
+      perc->operators[1].volume_envelope.points[0].value = 1.f;
+      perc->op_matrix[1][0] = 1.f;
+    }
+
+    rbn_program* bass_drum = inst->programs + 93 + 35;
+    bass_drum->operators[0].freq_ratio = 0.2f;
+    bass_drum->operators[0].output = 2.f;
+    bass_drum->operators[0].volume_envelope.points[0].time = 0.001f;
+    bass_drum->operators[0].volume_envelope.points[0].value = 1.f;
+    bass_drum->operators[0].volume_envelope.points[1].time = 0.2f;
+    bass_drum->operators[0].volume_envelope.points[1].value = 0.75f;
+    bass_drum->operators[0].volume_envelope.release_time = 0.1f;
+    RBN_MEMCPY(inst->programs + 93 + 36, bass_drum, sizeof(rbn_program));
 #endif
 
     return rbn_refresh(inst);
@@ -416,13 +447,26 @@ extern "C" {
   rbn_result rbn_refresh(rbn_instance* inst) {
     for(uintptr_t i = 0; i < RBN_PROGRAM_COUNT; i++) {
       rbn_program* program = inst->programs + i;
+      program->sustain_samples = 0;
       program->release_samples = 0;
       for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
         rbn_operator* operator = program->operators + j;
+
+        // Compute max release time in samples
         if(operator->volume_envelope.release_time > 0.f) {
           uint64_t release_samples = (uint64_t)(operator->volume_envelope.release_time * inst->config.sample_rate);
           if(release_samples > program->release_samples) {
             program->release_samples = release_samples;
+          }
+        }
+
+        // Compute max time to sustain in samples
+        for(uintptr_t k = 0; k < RBN_ENVPT_COUNT; k++) {
+          if(operator->volume_envelope.points[k].time > 0.f) {
+            uint64_t sustain_samples = (uint64_t)(operator->volume_envelope.points[k].time * inst->config.sample_rate);
+            if(sustain_samples > program->sustain_samples) {
+              program->sustain_samples = sustain_samples;
+            }
           }
         }
       }
@@ -499,13 +543,22 @@ extern "C" {
         voice->inactive_index = UINT64_MAX;
         voice->press_index = inst->sample_index;
         voice->release_index = UINT64_MAX;
-        voice->program = inst->programs + inst->channels[channel].program;
         RBN_MEMSET(voice->phases, 0, sizeof(float) * RBN_OPERATOR_COUNT);
         RBN_MEMSET(voice->values, 0, sizeof(float) * RBN_OPERATOR_COUNT);
         RBN_MEMSET(voice->volumes, 0, sizeof(float) * RBN_OPERATOR_COUNT);
+        voice->program = inst->programs + inst->channels[channel].program;
         voice->channel = channel;
         voice->key = key;
         voice->velocity = velocity;
+#ifdef RBN_GENERAL_MIDI
+        if(channel == 9) { // Percussions
+          voice->key = 60;
+          voice->program = inst->programs + 93 + key;
+          // Percussions are instantly off
+          voice->release_index = voice->press_index + voice->program->sustain_samples;
+          voice->inactive_index = voice->release_index + voice->program->release_samples;
+        }
+#endif
         rbn_voice_compute_base_freq_rate(inst, voice);
         return rbn_success;
       }

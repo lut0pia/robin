@@ -9,6 +9,7 @@
 #include "tml.h"
 
 #define RBN_IMPLEMENTATION
+#define RBN_GENERAL_MIDI
 #include "../robin.h"
 
 static const uint32_t sample_rate = 44100;
