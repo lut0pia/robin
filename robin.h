@@ -316,7 +316,7 @@ extern "C" {
       voice->phases[i] = fmodf(voice->phases[i], 1.f);
     }
 
-    inst->rendered_samples++;
+    inst->rendered_samples += RBN_BLOCK_SAMPLES;
     return rbn_success;
   }
 
