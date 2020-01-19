@@ -63,10 +63,18 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.c" />
     <ClInclude Include="..\robin.h" />
     <ClInclude Include="miniaudio.h" />
+    <ClInclude Include="rbncli.h" />
     <ClInclude Include="tml.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="rbncli.c" />
+    <ClCompile Include="rbncli_edit.c" />
+    <ClCompile Include="rbncli_open.c" />
+    <ClCompile Include="rbncli_play.c" />
+    <ClCompile Include="rbncli_render.c" />
+    <ClCompile Include="rbncli_win.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
