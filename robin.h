@@ -50,6 +50,10 @@ extern "C" {
 #define RBN_FILTER_COUNT 4
 #endif
 
+#ifndef RBN_BLOCK_SAMPLES
+#define RBN_BLOCK_SAMPLES 64
+#endif
+
   typedef enum rbn_result {
     rbn_success,
     rbn_unknown_msg_type,
@@ -210,7 +214,6 @@ extern "C" {
 #define RBN_PI 3.1415f
 #define RBN_TAU 6.2832f
 #define RBN_INV_TAU (1.f/6.2832f)
-#define RBN_BLOCK_SAMPLES 64
 
 #ifndef RBN_MEMCPY
 #include <string.h>
