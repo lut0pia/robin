@@ -198,6 +198,8 @@ extern "C" {
   RBNDEF rbn_result rbn_send_msg(rbn_instance* inst, rbn_msg msg);
   RBNDEF rbn_result rbn_play_note(rbn_instance* inst, uint8_t channel, uint8_t key, uint8_t velocity);
   RBNDEF rbn_result rbn_stop_note(rbn_instance* inst, uint8_t channel, uint8_t key);
+  RBNDEF rbn_result rbn_stop_all_notes(rbn_instance* inst);
+  RBNDEF rbn_result rbn_set_program(rbn_instance* inst, uint8_t channel, uint8_t program);
   RBNDEF rbn_result rbn_set_pitch_bend(rbn_instance* inst, uint8_t channel, float value);
 
 #ifdef __cplusplus
@@ -529,7 +531,7 @@ extern "C" {
           return rbn_unknown_control;
         }
         break;
-      case rbn_program_change: channel->program = msg.instrument; break;
+      case rbn_program_change: rbn_set_program(inst, msg.channel, msg.instrument); break;
       case rbn_pitch_bend: return rbn_set_pitch_bend(inst, msg.channel, ((msg.u8[2] | (msg.u8[3] << 7)) - 0x2000) / (float)0x1000); break;
       default:
         //printf("%d %d %d %d\n", msg.channel, msg.type, msg.key, msg.velocity);
@@ -581,6 +583,16 @@ extern "C" {
         return rbn_success;
       }
     }
+    return rbn_success;
+  }
+
+  rbn_result rbn_stop_all_notes(rbn_instance* inst) {
+    RBN_MEMSET(inst->voices, 0, RBN_VOICE_COUNT * sizeof(rbn_voice));
+    return rbn_success;
+  }
+
+  rbn_result rbn_set_program(rbn_instance* inst, uint8_t channel, uint8_t program) {
+    inst->channels[channel].program = program;
     return rbn_success;
   }
 
