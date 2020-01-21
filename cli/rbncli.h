@@ -22,3 +22,5 @@ void rbncli_send_tml_msg(rbn_instance* inst, tml_message* tml_msg);
 uint64_t rbncli_get_time();
 void rbncli_progress_bar(uint32_t current, uint32_t* last);
 void rbncli_sleep(uint32_t ms);
+void rbncli_clear_screen();
+int rbncli_getch();
