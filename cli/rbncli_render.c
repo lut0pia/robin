@@ -11,7 +11,6 @@ static void fputui(unsigned int value, size_t size, FILE* stream) {
 int rbncli_render_mid(const char* filename) {
   tml_message* mid_seq = tml_load_filename(filename);
   if(!mid_seq) {
-    rbn_shutdown(&inst);
     return -1;
   }
 

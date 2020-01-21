@@ -7,8 +7,6 @@ static void data_callback(ma_device* device, void* output, const void* input, ma
 int rbncli_play_mid(const char* filename) {
   tml_message* mid_seq = tml_load_filename(filename);
   if(!mid_seq) {
-    tml_free(mid_seq);
-    rbn_shutdown(&inst);
     return -1;
   }
 
@@ -27,14 +25,12 @@ int rbncli_play_mid(const char* filename) {
   if(ma_device_init(NULL, &device_config, &device) != MA_SUCCESS) {
     printf("Failed to open playback device.\n");
     tml_free(mid_seq);
-    rbn_shutdown(&inst);
     return -1;
   }
 
   if(ma_device_start(&device) != MA_SUCCESS) {
     printf("Failed to start playback device.\n");
     tml_free(mid_seq);
-    rbn_shutdown(&inst);
     ma_device_uninit(&device);
     return -1;
   }
