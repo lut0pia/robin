@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="rbncli.c" />
+    <ClCompile Include="rbncli_common.c" />
     <ClCompile Include="rbncli_edit.c" />
     <ClCompile Include="rbncli_open.c" />
     <ClCompile Include="rbncli_play.c" />

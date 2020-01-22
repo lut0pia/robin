@@ -13,33 +13,6 @@
 
 rbn_instance inst = {0};
 
-void rbncli_send_tml_msg(rbn_instance* inst, tml_message* tml_msg) {
-  rbn_msg msg;
-  msg.channel = tml_msg->channel;
-  msg.type = tml_msg->type;
-  msg.key = tml_msg->key;
-  msg.velocity = tml_msg->velocity;
-  if(tml_msg->type == TML_PITCH_BEND) {
-    // TML transforms pitch bend values as a 14 (in 16) bits integer but rbn expects actual MIDI bytes
-    // so we put back values as two separate 7 (in 8) bits integers
-    msg.u8[2] = tml_msg->pitch_bend & 0x7f;
-    msg.u8[3] = tml_msg->pitch_bend >> 7;
-  }
-  rbn_send_msg(inst, msg);
-}
-
-void rbncli_progress_bar(uint32_t current, uint32_t* last) {
-  if(current == 100 && *last < 100) {
-    printf("\rDone!\n");
-    *last = current;
-  } else if(!last || current > * last) {
-    printf("\r%02u%%\t", current);
-    if(last) {
-      *last = current;
-    }
-  }
-}
-
 int rbncli_print_help(int argc, char** argv) {
   printf(
     "rbncli v0.1\n"
