@@ -110,6 +110,7 @@ extern "C" {
 
   typedef struct rbn_operator {
     rbn_envelope volume_envelope;
+    rbn_envelope pitch_envelope;
     float freq_offset;
     float freq_ratio;
     float output;
@@ -135,6 +136,7 @@ extern "C" {
     float phases[RBN_OPERATOR_COUNT];
     float values[RBN_OPERATOR_COUNT];
     float volumes[RBN_OPERATOR_COUNT];
+    float pitches[RBN_OPERATOR_COUNT];
     uint64_t press_index;
     uint64_t release_index;
     uint64_t inactive_index;
@@ -284,6 +286,7 @@ extern "C" {
   static rbn_result rbn_render_voice_block(rbn_instance* inst, rbn_voice* voice, rbn_channel* channel, float* samples) {
     float values[RBN_OPERATOR_COUNT];
     float volume_rates[RBN_OPERATOR_COUNT];
+    float pitch_rates[RBN_OPERATOR_COUNT];
 
     const float base_freq_rate = voice->base_freq_rate;
     const float velocity = voice->velocity / 127.f;
@@ -291,9 +294,11 @@ extern "C" {
     const rbn_program* program = voice->program;
     const rbn_operator* operators = program->operators;
     float* volumes = voice->volumes;
+    float* pitches = voice->pitches;
 
     for(uintptr_t i = 0; i < RBN_OPERATOR_COUNT; i++) {
       rbn_compute_envelope(inst, voice, &operators[i].volume_envelope, volumes[i], volume_rates + i);
+      rbn_compute_envelope(inst, voice, &operators[i].pitch_envelope, pitches[i], pitch_rates + i);
     }
 
     for(uintptr_t i = 0; i < RBN_BLOCK_SAMPLES; i++) {
@@ -312,8 +317,9 @@ extern "C" {
         samples[i * 2 + 0] += value * channel->volume[0];
         samples[i * 2 + 1] += value * channel->volume[1];
 
-        voice->phases[j] += base_freq_rate * operators[j].freq_ratio;
+        voice->phases[j] += base_freq_rate * operators[j].freq_ratio * powf(2.f, pitches[j]);
         voice->values[j] = values[j];
+        pitches[j] += pitch_rates[j];
       }
     }
 
@@ -551,6 +557,7 @@ extern "C" {
         RBN_MEMSET(voice->phases, 0, sizeof(float) * RBN_OPERATOR_COUNT);
         RBN_MEMSET(voice->values, 0, sizeof(float) * RBN_OPERATOR_COUNT);
         RBN_MEMSET(voice->volumes, 0, sizeof(float) * RBN_OPERATOR_COUNT);
+        RBN_MEMSET(voice->pitches, 0, sizeof(float) * RBN_OPERATOR_COUNT);
         voice->program = inst->programs + inst->channels[channel].program;
         voice->channel = channel;
         voice->key = key;
