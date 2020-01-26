@@ -598,7 +598,6 @@ extern "C" {
       if(active && voice->channel == channel && voice->key == key) {
         voice->release_index = inst->sample_index;
         voice->inactive_index = inst->sample_index + voice->program->release_samples;
-        return rbn_success;
       }
     }
     return rbn_success;
