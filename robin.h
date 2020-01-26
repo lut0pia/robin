@@ -229,6 +229,10 @@ extern "C" {
 #define RBN_MEMSET memset
 #endif
 
+  static float rbn_max(float a, float b) {
+    return a > b ? a : b;
+  }
+
   static void rbn_channel_update_volumes(rbn_channel* channel) {
     const float channel_volume = (channel->controls[rbn_volume] / 126.f) * (channel->controls[rbn_expression] / 126.f);
     const float pan = channel->controls[rbn_pan] / 126.f;
@@ -250,12 +254,12 @@ extern "C" {
     const int has_released = voice->release_index != UINT64_MAX && voice->release_index <= inst->sample_index;
 
     for(uintptr_t i = 0; i < RBN_ENVPT_COUNT; i++) {
-      if(!has_released && envelope->points[i].time > press_time) {
+      if(!has_released && envelope->points[i].time >= press_time) {
         const float next_time = envelope->points[i].time;
         const float next_value = envelope->points[i].value;
         const float time_to_next = next_time - press_time;
 
-        *rate = (next_value - current) / (time_to_next * inst->config.sample_rate);
+        *rate = (next_value - current) / rbn_max(time_to_next * inst->config.sample_rate, RBN_BLOCK_SAMPLES);
         return;
       }
 
@@ -275,9 +279,7 @@ extern "C" {
     if(envelope->release_time > 0.f) {
       const float release_time = (float)(inst->sample_index - voice->release_index) * inst->inv_sample_rate;
       const float time_to_zero = envelope->release_time - release_time;
-      const float samples_to_zero = time_to_zero * inst->config.sample_rate;
-
-      *rate = -current / (samples_to_zero < RBN_BLOCK_SAMPLES ? RBN_BLOCK_SAMPLES : samples_to_zero);
+      *rate = -current / rbn_max(time_to_zero * inst->config.sample_rate, RBN_BLOCK_SAMPLES);
     } else { // Go to zero
       *rate = -current / RBN_BLOCK_SAMPLES;
     }
