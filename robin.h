@@ -113,6 +113,7 @@ extern "C" {
     rbn_envelope pitch_envelope;
     float freq_offset;
     float freq_ratio;
+    float noise;
     float output;
   } rbn_operator;
 
@@ -219,6 +220,11 @@ extern "C" {
 #define RBN_TAU 6.2832f
 #define RBN_INV_TAU (1.f/6.2832f)
 
+#ifndef RBN_RAND
+#include <stdlib.h>
+#define RBN_RAND() (((float)rand() / (RAND_MAX / 2)) - 1.f)
+#endif
+
 #ifndef RBN_MEMCPY
 #include <string.h>
 #define RBN_MEMCPY memcpy
@@ -310,7 +316,9 @@ extern "C" {
           phase += program->op_matrix[k][j] * voice->values[k] * RBN_INV_TAU;
         }
 
-        values[j] = sinf(phase * RBN_TAU) * volumes[j];
+        const float noisef = program->operators[j].noise;
+        const float noise = RBN_RAND();
+        values[j] = (sinf(phase * RBN_TAU) * (1.f - noisef) + noise * noisef) * volumes[j];
         volumes[j] += volume_rates[j];
       }
 
