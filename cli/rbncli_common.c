@@ -1,7 +1,9 @@
 #include "rbncli.h"
 
 static void data_callback(ma_device* device, void* output, const void* input, ma_uint32 sample_count) {
+  rbncli_lock();
   rbn_render(&inst, output, sample_count);
+  rbncli_unlock();
 }
 
 int rbncli_init_ma_device(ma_device* device) {
@@ -38,7 +40,9 @@ void rbncli_send_tml_msg(rbn_instance* inst, tml_message* tml_msg) {
     msg.u8[2] = tml_msg->pitch_bend & 0x7f;
     msg.u8[3] = tml_msg->pitch_bend >> 7;
   }
+  rbncli_lock();
   rbn_send_msg(inst, msg);
+  rbncli_unlock();
 }
 
 void rbncli_progress_bar(uint32_t current, uint32_t* last) {
