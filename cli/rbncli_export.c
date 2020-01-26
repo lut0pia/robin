@@ -1,6 +1,17 @@
 #include "rbncli.h"
 
 #include <stdarg.h>
+#include <string.h>
+
+static void export_float(FILE* stream, float value) {
+  char buffer[32];
+  sprintf(buffer, "%f", value);
+  uintptr_t len = strlen(buffer);
+  while(buffer[len - 1] == '0') {
+    buffer[--len] = '\0';
+  }
+  fprintf(stream, "%sf", buffer);
+}
 
 static void export_envelope(FILE* stream, const rbn_envelope* env, const char* fmt, ...) {
   va_list va;
@@ -8,14 +19,21 @@ static void export_envelope(FILE* stream, const rbn_envelope* env, const char* f
   for(uintptr_t i = 0; i < RBN_ENVPT_COUNT; i++) {
     if(env->points[i].time > 0.f || env->points[i].value > 0.f) {
       vfprintf(stream, fmt, va);
-      fprintf(stream, ".points[%d].time = %f;\n", i, env->points[i].time);
+      fprintf(stream, ".points[%d].time = ", i);
+      export_float(stream, env->points[i].time);
+      fprintf(stream, ";\n");
+
       vfprintf(stream, fmt, va);
-      fprintf(stream, ".points[%d].value = %f;\n", i, env->points[i].value);
+      fprintf(stream, ".points[%d].value = ", i);
+      export_float(stream, env->points[i].value);
+      fprintf(stream, ";\n");
     }
   }
   if(env->release_time != 0.f) {
     vfprintf(stream, fmt, va);
-    fprintf(stream, ".release_time = %f;\n", env->release_time);
+    fprintf(stream, ".release_time = ");
+    export_float(stream, env->release_time);
+    fprintf(stream, ";\n");
   }
   va_end(va);
 }
@@ -60,20 +78,28 @@ int rbncli_export_prg(int argc, char** argv) {
     }
 
     if(op->freq_ratio != 0.f) {
-      fprintf(stream, "prg->operators[%d].freq_ratio = %f;\n", i, op->freq_ratio);
+      fprintf(stream, "prg->operators[%d].freq_ratio = ", i);
+      export_float(stream, op->freq_ratio);
+      fprintf(stream, ";\n");
     }
     if(op->noise != 0.f) {
-      fprintf(stream, "prg->operators[%d].noise = %f;\n", i, op->noise);
+      fprintf(stream, "prg->operators[%d].noise = ", i);
+      export_float(stream, op->noise);
+      fprintf(stream, ";\n");
     }
     if(op->output != 0.f) {
-      fprintf(stream, "prg->operators[%d].output = %f;\n", i, op->output);
+      fprintf(stream, "prg->operators[%d].output = ", i);
+      export_float(stream, op->output);
+      fprintf(stream, ";\n");
     }
     export_envelope(stream, &op->volume_envelope, "prg->operators[%d].volume_envelope", i);
     export_envelope(stream, &op->pitch_envelope, "prg->operators[%d].pitch_envelope", i);
 
     for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
       if(prg->op_matrix[i][j] != 0.f) {
-        fprintf(stream, "prg->op_matrix[%d][%d] = %f;\n", i, j, prg->op_matrix[i][j]);
+        fprintf(stream, "prg->op_matrix[%d][%d] = ", i, j);
+        export_float(stream, prg->op_matrix[i][j]);
+        fprintf(stream, ";\n");
       }
     }
   }
