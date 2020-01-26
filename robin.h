@@ -68,6 +68,7 @@ extern "C" {
   } rbn_sample_format;
 
   typedef enum rbn_msg_type {
+    rbn_end_of_track = 0x2f,
     rbn_set_tempo = 0x51,
     rbn_note_off = 0x80,
     rbn_note_on = 0x90,
@@ -526,6 +527,7 @@ extern "C" {
   rbn_result rbn_send_msg(rbn_instance* inst, rbn_msg msg) {
     rbn_channel* channel = inst->channels + msg.channel;
     switch(msg.type) {
+      case rbn_end_of_track:
       case rbn_set_tempo: break; // Ignore
       case rbn_note_off:
         return rbn_stop_note(inst, msg.channel, msg.key);
