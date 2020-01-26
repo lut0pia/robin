@@ -20,6 +20,7 @@ int rbncli_print_help(int argc, char** argv) {
     "- render [file.mid]\n"
     "- open [device_id]\n"
     "- edit [prg_id]\n"
+    "- export [prg_id]\n"
     "- exit\n"
   );
   return 0;
@@ -34,6 +35,8 @@ static int handle_cmd(int argc, char** argv) {
     return rbncli_open_device(argc - 1, argv + 1);
   } else if(argc >= 1 && !strcmp(argv[0], "edit")) {
     return rbncli_edit_prg(argc - 1, argv + 1);
+  } else if(argc >= 1 && !strcmp(argv[0], "export")) {
+    return rbncli_export_prg(argc - 1, argv + 1);
   } else {
     rbncli_print_help(argc, argv);
     return -1;

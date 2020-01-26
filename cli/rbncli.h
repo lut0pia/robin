@@ -15,6 +15,7 @@ int rbncli_play_mid(const char* filename);
 int rbncli_render_mid(const char* filename);
 int rbncli_open_device(int argc, char** argv);
 int rbncli_edit_prg(int argc, char** argv);
+int rbncli_export_prg(int argc, char** argv);
 int rbncli_print_help(int argc, char** argv);
 
 void rbncli_platform_init();
