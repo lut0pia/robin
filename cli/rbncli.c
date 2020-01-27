@@ -28,9 +28,9 @@ int rbncli_print_help(int argc, char** argv) {
 
 static int handle_cmd(int argc, char** argv) {
   if(argc >= 2 && !strcmp(argv[0], "play")) {
-    return rbncli_play_mid(argv[1]);
+    return rbncli_play_mid(argc - 1, argv + 1);
   } else if(argc >= 2 && !strcmp(argv[0], "render")) {
-    return rbncli_render_mid(argv[1]);
+    return rbncli_render_mid(argc - 1, argv + 1);
   } else if(argc >= 1 && !strcmp(argv[0], "open")) {
     return rbncli_open_device(argc - 1, argv + 1);
   } else if(argc >= 1 && !strcmp(argv[0], "edit")) {

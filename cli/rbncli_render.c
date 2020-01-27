@@ -60,9 +60,11 @@ static tml_message* demo_sequence() {
   return seq;
 }
 
-int rbncli_render_mid(const char* filename) {
-  tml_message* mid_seq = NULL;
+int rbncli_render_mid(int argc, char** argv) {
+  const char* filename = argv[0];
+  const uint32_t channel_mask = argc > 1 ? (1 << atoi(argv[1])) : ~0;
 
+  tml_message* mid_seq = NULL;
   if(!strcmp(filename, "demo")) {
     mid_seq = demo_sequence();
   } else {
@@ -141,7 +143,9 @@ int rbncli_render_mid(const char* filename) {
       current_sample += samples_to_render;
     }
 
-    rbncli_send_tml_msg(&inst, current_msg);
+    if((1 << current_msg->channel) & channel_mask) {
+      rbncli_send_tml_msg(&inst, current_msg);
+    }
     current_msg = current_msg->next;
   }
 

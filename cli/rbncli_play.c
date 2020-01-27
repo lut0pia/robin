@@ -1,6 +1,9 @@
 #include "rbncli.h"
 
-int rbncli_play_mid(const char* filename) {
+int rbncli_play_mid(int argc, char** argv) {
+  const char* filename = argv[0];
+  const uint32_t channel_mask = argc > 1 ? (1 << atoi(argv[1])) : ~0;
+
   tml_message* mid_seq = tml_load_filename(filename);
   if(!mid_seq) {
     return -1;
@@ -29,7 +32,9 @@ int rbncli_play_mid(const char* filename) {
       current_time += time_to_wait;
     }
 
-    rbncli_send_tml_msg(&inst, current_msg);
+    if((1 << current_msg->channel) & channel_mask) {
+      rbncli_send_tml_msg(&inst, current_msg);
+    }
     current_msg = current_msg->next;
   }
 
