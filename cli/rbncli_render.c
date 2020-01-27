@@ -1,5 +1,7 @@
 #include "rbncli.h"
 
+#include <string.h>
+
 static void fputui(unsigned int value, size_t size, FILE* stream) {
   while(size > 0) {
     fputc(value & 0xff, stream);
@@ -8,8 +10,65 @@ static void fputui(unsigned int value, size_t size, FILE* stream) {
   }
 }
 
+static tml_message* demo_sequence() {
+  static tml_message* seq = NULL;
+  if(!seq) {
+    seq = calloc(1, 128 * (6 * 2 + 1) * sizeof(tml_message));
+
+    unsigned int time = 0;
+    tml_message* cur = seq;
+    for(uintptr_t i = 0; i < 128; i++) {
+      cur->time = time;
+      cur->type = TML_PROGRAM_CHANGE;
+      cur->program = i;
+      cur++;
+      for(uintptr_t j = 0; j < 3; j++) {
+        char key = 60 + j * 4;
+        cur->time = time;
+        cur->type = TML_NOTE_ON;
+        cur->key = key;
+        cur->velocity = 127;
+        cur++;
+
+        time += 256;
+        cur->time = time;
+        cur->type = TML_NOTE_OFF;
+        cur->key = key;
+        cur++;
+      }
+      time += 256;
+    }
+
+    for(uintptr_t i = 35; i < 82; i++) {
+      for(uintptr_t j = 0; j < 3; j++) {
+        cur->time = time;
+        cur->type = TML_NOTE_ON;
+        cur->channel = 9;
+        cur->key = i;
+        cur->velocity = 127;
+        cur++;
+
+        time += 256;
+      }
+      time += 256;
+    }
+
+    for(tml_message* msg = seq; msg < cur - 1; msg++) {
+      msg->next = msg + 1;
+    }
+  }
+  return seq;
+}
+
 int rbncli_render_mid(const char* filename) {
-  tml_message* mid_seq = tml_load_filename(filename);
+  tml_message* mid_seq = NULL;
+
+  if(!strcmp(filename, "demo")) {
+    mid_seq = demo_sequence();
+  } else {
+    mid_seq = tml_load_filename(filename);
+  }
+
   if(!mid_seq) {
     return -1;
   }

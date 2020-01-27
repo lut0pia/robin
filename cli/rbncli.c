@@ -17,7 +17,7 @@ int rbncli_print_help(int argc, char** argv) {
   printf(
     "rbncli v0.1\n"
     "- play [file.mid]\n"
-    "- render [file.mid]\n"
+    "- render [file.mid|demo]\n"
     "- open [device_id]\n"
     "- edit [prg_id]\n"
     "- export [prg_id]\n"
