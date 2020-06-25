@@ -5,8 +5,7 @@
 
 #include "miniaudio.h"
 #include "tml.h"
-#define RBN_GENERAL_MIDI
-#include "../robin.h"
+#include "../robin_general.h"
 
 static const uint32_t sample_rate = 44100;
 extern rbn_instance inst;

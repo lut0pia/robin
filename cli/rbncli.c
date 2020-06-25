@@ -9,7 +9,8 @@
 #include "tml.h"
 
 #define RBN_IMPLEMENTATION
-#include "../robin.h"
+#define RBN_GENERAL_IMPLEMENTATION
+#include "../robin_general.h"
 
 rbn_instance inst = {0};
 
@@ -50,7 +51,7 @@ int main(int argc, char** argv) {
     .sample_rate = sample_rate,
     .sample_format = rbn_s16,
   };
-  rbn_init(&inst, &config);
+  rbn_general_init(&inst, &config);
 
   if(argc > 1) {
     return handle_cmd(argc - 1, argv + 1);

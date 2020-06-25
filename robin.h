@@ -1,6 +1,6 @@
 /*
   robin.h - v0.1
-  General MIDI frequency modulation synthesizer
+  MIDI frequency modulation synthesizer
 */
 
 #ifndef ROBIN_H
@@ -16,14 +16,6 @@ extern "C" {
 #define RBNDEF static
 #else
 #define RBNDEF extern
-#endif
-
-#ifdef RBN_GENERAL_MIDI
-#define RBN_CHAN_COUNT 16
-#define RBN_PROGRAM_COUNT 174 // 128 tonal instruments + 46 percussive sounds
-#define RBN_OPERATOR_COUNT 8
-#define RBN_ENVPT_COUNT 6
-#define RBN_FILTER_COUNT 4
 #endif
 
 #ifndef RBN_CHAN_COUNT
@@ -367,98 +359,6 @@ extern "C" {
       rbn_channel_update_volumes(channel);
     }
 
-    // Set all programs to simple sinewaves
-    for(uintptr_t i = 0; i < RBN_PROGRAM_COUNT; i++) {
-      rbn_program* program = inst->programs + i;
-      program->operators[0].freq_ratio = 1.f;
-      program->operators[0].output = 1.f;
-      program->operators[0].volume_envelope.points[0].time = 0.05f;
-      program->operators[0].volume_envelope.points[0].value = 0.75f;
-      program->operators[0].volume_envelope.release_time = 0.05f;
-      //program->operators[1].freq_ratio = 1.f;
-      //program->operators[1].volume_envelope.points[0].value = 1.f;
-      //program->op_matrix[1][0] = 1.f;
-    }
-
-#ifdef RBN_GENERAL_MIDI
-    rbn_program* piano = inst->programs + 0;
-    //piano->op_matrix[1][0] = 0.01f;
-    RBN_MEMCPY(inst->programs + 1, piano, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 2, piano, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 3, piano, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 4, piano, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 5, piano, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 6, piano, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 7, piano, sizeof(rbn_program));
-
-    rbn_program* guitar = inst->programs + 24;
-    guitar->operators[0].freq_ratio = 1.f;
-    guitar->operators[0].output = 1.f;
-    guitar->operators[0].volume_envelope.points[0].time = 0.001f;
-    guitar->operators[0].volume_envelope.points[0].value = 1.f;
-    guitar->operators[0].volume_envelope.points[1].time = 0.8f;
-    guitar->operators[0].volume_envelope.points[1].value = 0.1f;
-    guitar->operators[0].volume_envelope.release_time = 0.1f;
-    guitar->operators[1].freq_ratio = 1.f;
-    guitar->operators[1].volume_envelope.points[0].value = 1.f;
-    guitar->operators[1].volume_envelope.release_time = -1.f;
-    guitar->op_matrix[1][0] = 2.5f;
-    RBN_MEMCPY(inst->programs + 25, guitar, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 26, guitar, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 27, guitar, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 28, guitar, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 29, guitar, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 30, guitar, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 31, guitar, sizeof(rbn_program));
-
-    rbn_program* bass = inst->programs + 32;
-    bass->operators[0].freq_ratio = 1.f;
-    bass->operators[0].output = 1.f;
-    bass->operators[0].volume_envelope.points[0].time = 0.001f;
-    bass->operators[0].volume_envelope.points[0].value = 1.f;
-    bass->operators[0].volume_envelope.points[1].time = 0.8f;
-    bass->operators[0].volume_envelope.points[1].value = 0.1f;
-    bass->operators[0].volume_envelope.release_time = 0.1f;
-    bass->operators[1].freq_ratio = 2.f;
-    bass->operators[1].volume_envelope.points[0].time = 0.8f;
-    bass->operators[1].volume_envelope.points[0].value = 1.f;
-    bass->operators[1].volume_envelope.release_time = -1.f;
-    bass->op_matrix[1][0] = 1.f;
-    RBN_MEMCPY(inst->programs + 33, bass, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 34, bass, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 35, bass, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 36, bass, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 37, bass, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 38, bass, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + 39, bass, sizeof(rbn_program));
-
-    // Default percussion
-    for(uintptr_t i = 128; i < RBN_PROGRAM_COUNT; i++) {
-      rbn_program* perc = inst->programs + i;
-      perc->operators[0].freq_ratio = 1.f;
-      perc->operators[0].output = 1.f;
-      perc->operators[0].volume_envelope.points[0].time = 0.001f;
-      perc->operators[0].volume_envelope.points[0].value = 1.f;
-      perc->operators[0].volume_envelope.points[1].time = 0.1f;
-      perc->operators[0].volume_envelope.points[1].value = 0.f;
-      perc->operators[0].volume_envelope.release_time = 0.1f;
-      perc->operators[1].freq_ratio = 298.f;
-      perc->operators[1].volume_envelope.points[0].time = 0.001f;
-      perc->operators[1].volume_envelope.points[0].value = 1.f;
-      perc->op_matrix[1][0] = 1.f;
-    }
-
-    rbn_program* bass_drum = inst->programs + 93 + 35;
-    bass_drum->operators[0].freq_ratio = 0.2f;
-    bass_drum->operators[0].output = 2.f;
-    bass_drum->operators[0].volume_envelope.points[0].time = 0.001f;
-    bass_drum->operators[0].volume_envelope.points[0].value = 1.f;
-    bass_drum->operators[0].volume_envelope.points[1].time = 0.2f;
-    bass_drum->operators[0].volume_envelope.points[1].value = 0.75f;
-    bass_drum->operators[0].volume_envelope.release_time = 0.1f;
-    RBN_MEMCPY(inst->programs + 93 + 36, bass_drum, sizeof(rbn_program));
-#endif
-
     return rbn_refresh(inst);
   }
 
@@ -575,7 +475,7 @@ extern "C" {
         voice->channel = channel;
         voice->key = key;
         voice->velocity = velocity;
-#ifdef RBN_GENERAL_MIDI
+#ifdef RBN_GENERAL_MIDI // TODO: Make this more generic?
         if(channel == 9) { // Percussions
           voice->key = 60;
           voice->program = inst->programs + 93 + key;
