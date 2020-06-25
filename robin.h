@@ -346,7 +346,7 @@ extern "C" {
 
   rbn_result rbn_init(rbn_instance* inst, const rbn_config* config) {
     RBN_MEMSET(inst, 0, sizeof(rbn_instance));
-    RBN_MEMCPY(&inst->config, config, sizeof(config));
+    RBN_MEMCPY(&inst->config, config, sizeof(*config));
 
     inst->inv_sample_rate = 1.f / config->sample_rate;
 
