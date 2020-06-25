@@ -177,6 +177,8 @@ extern "C" {
     uint64_t sample_index;
     uint64_t rendered_samples;
 
+    float dynamic_range;
+
     rbn_channel channels[RBN_CHAN_COUNT];
     rbn_program programs[RBN_PROGRAM_COUNT];
     rbn_voice voices[RBN_VOICE_COUNT];
@@ -348,6 +350,7 @@ extern "C" {
     RBN_MEMSET(inst, 0, sizeof(rbn_instance));
     RBN_MEMCPY(&inst->config, config, sizeof(*config));
 
+    inst->dynamic_range = 1.f;
     inst->inv_sample_rate = 1.f / config->sample_rate;
 
     for(uintptr_t i = 0; i < RBN_CHAN_COUNT; i++) {
@@ -410,7 +413,11 @@ extern "C" {
         switch(inst->config.sample_format) {
           case rbn_s16:
             for(uintptr_t j = 0; j < RBN_BLOCK_SAMPLES * 2; j++) {
-              isamples[j] = (int16_t)(fsamples[j] * (1.f / RBN_VOICE_COUNT) * 0x8000);
+              const float range = fabs(fsamples[j]) * 1.01f;
+              if(range > inst->dynamic_range) {
+                inst->dynamic_range = range;
+              }
+              isamples[j] = (int16_t)((fsamples[j] / inst->dynamic_range) * 0x8000);
             }
             break;
           default:
