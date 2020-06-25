@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
 #ifndef RBN_VOICE_COUNT
-#define RBN_VOICE_COUNT 32
+#define RBN_VOICE_COUNT 64
 #endif
 
 #ifndef RBN_OPERATOR_COUNT
