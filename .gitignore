@@ -1,11 +1,5 @@
-# Visual Studio
-.vs
-*.user
-*.VC.*
-cli/Debug
-cli/Release
-cli/x64
-cli/enc_temp_folder
+# CMake
+cli/bld
 
 # Artefacts
 cli/export.c
