@@ -237,8 +237,8 @@ extern "C" {
   static void rbn_channel_update_volumes(rbn_channel* channel) {
     const float channel_volume = (channel->controls[rbn_volume] / 126.f) * (channel->controls[rbn_expression] / 126.f);
     const float pan = channel->controls[rbn_pan] / 126.f;
-    channel->volume[0] = cosf((RBN_PI / 2.f) * pan);
-    channel->volume[1] = sinf((RBN_PI / 2.f) * pan);
+    channel->volume[0] = channel_volume * cosf((RBN_PI / 2.f) * pan);
+    channel->volume[1] = channel_volume * sinf((RBN_PI / 2.f) * pan);
   }
 
   static void rbn_voice_compute_base_freq_rate(const rbn_instance* inst, rbn_voice* voice) {
