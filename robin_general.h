@@ -205,6 +205,24 @@ extern "C" {
     RBN_MEMCPY(inst->programs + 62, brass, sizeof(rbn_program));
     RBN_MEMCPY(inst->programs + 63, brass, sizeof(rbn_program));
 
+    rbn_program* reed = inst->programs + 64;
+    reed->operators[0].freq_ratio = 4.f;
+    reed->operators[0].output = 1.f;
+    reed->operators[0].volume_envelope.points[0].time = 0.1f;
+    reed->operators[0].volume_envelope.points[0].value = 1.f;
+    reed->operators[0].volume_envelope.release_time = 0.2f;
+    reed->operators[1].freq_ratio = 1.0f;
+    reed->operators[1].volume_envelope.points[0].value = 1.f;
+    reed->operators[1].volume_envelope.release_time = -1.f;
+    reed->op_matrix[1][0] = 2.5f;
+    inst->programs[65] = *reed;
+    inst->programs[66] = *reed;
+    inst->programs[67] = *reed;
+    inst->programs[68] = *reed;
+    inst->programs[69] = *reed;
+    inst->programs[70] = *reed;
+    inst->programs[71] = *reed;
+
     // Default percussion
 #if 0
     for(uintptr_t i = 128; i < RBN_PROGRAM_COUNT; i++) {
