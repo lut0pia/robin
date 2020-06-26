@@ -21,6 +21,8 @@ int rbncli_play_mid(int argc, char** argv) {
   uint32_t progress = 0;
   rbncli_progress_bar(progress, NULL);
 
+  rbn_reset(&inst);
+
   tml_message* current_msg = mid_seq;
   uint32_t current_time = 0;
   while(current_msg) {

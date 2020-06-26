@@ -102,6 +102,8 @@ int rbncli_render_mid(int argc, char** argv) {
   uint32_t progress = 0;
   rbncli_progress_bar(progress, NULL);
 
+  rbn_reset(&inst);
+
   tml_message* current_msg = mid_seq;
   uint64_t current_sample = 0;
   uint64_t total_rendering_time = 0;
