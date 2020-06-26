@@ -292,9 +292,16 @@ extern "C" {
     closed_hihat->operators[0].output = 0.5f;
     closed_hihat->operators[0].volume_envelope.points[0].time = 0.f;
     closed_hihat->operators[0].volume_envelope.points[0].value = 1.f;
-    closed_hihat->operators[0].volume_envelope.points[1].time = 0.1f;
+    closed_hihat->operators[0].volume_envelope.points[1].time = 0.05f;
     closed_hihat->operators[0].volume_envelope.points[1].value = 0.f;
-    RBN_MEMCPY(inst->programs + 93 + 44, closed_hihat, sizeof(rbn_program));
+
+    rbn_program* pedal_hihat = inst->programs + 93 + 44;
+    pedal_hihat->operators[0].noise = 1.f;
+    pedal_hihat->operators[0].output = 0.5f;
+    pedal_hihat->operators[0].volume_envelope.points[0].time = 0.f;
+    pedal_hihat->operators[0].volume_envelope.points[0].value = 1.f;
+    pedal_hihat->operators[0].volume_envelope.points[1].time = 0.1f;
+    pedal_hihat->operators[0].volume_envelope.points[1].value = 0.f;
 
     rbn_program* open_hihat = inst->programs + 93 + 46;
     open_hihat->operators[0].noise = 1.f;
