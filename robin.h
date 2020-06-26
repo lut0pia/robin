@@ -191,6 +191,7 @@ extern "C" {
   RBNDEF rbn_result rbn_init(rbn_instance* inst, const rbn_config* config);
   RBNDEF rbn_result rbn_shutdown(rbn_instance* inst);
   RBNDEF rbn_result rbn_refresh(rbn_instance* inst);
+  RBNDEF rbn_result rbn_reset(rbn_instance* inst);
   RBNDEF rbn_result rbn_render(rbn_instance* inst, void* samples, uint64_t sample_count);
 
   RBNDEF rbn_result rbn_send_msg(rbn_instance* inst, rbn_msg msg);
@@ -365,7 +366,8 @@ extern "C" {
     RBN_MEMSET(inst, 0, sizeof(rbn_instance));
     RBN_MEMCPY(&inst->config, config, sizeof(*config));
 
-    inst->dynamic_range = 1.f;
+    rbn_reset(inst);
+
     inst->inv_sample_rate = 1.f / config->sample_rate;
 
     for(uintptr_t i = 0; i < RBN_CHAN_COUNT; i++) {
@@ -411,6 +413,16 @@ extern "C" {
         }
       }
     }
+
+    return rbn_success;
+  }
+
+  rbn_result rbn_reset(rbn_instance* inst) {
+    RBN_MEMSET(&inst->voices, 0, sizeof(inst->voices));
+    
+    inst->sample_index = 0;
+    inst->rendered_samples = 0;
+    inst->dynamic_range = 1.f;
 
     return rbn_success;
   }
