@@ -73,6 +73,29 @@ extern "C" {
     RBN_MEMCPY(inst->programs + 6, piano, sizeof(rbn_program));
     RBN_MEMCPY(inst->programs + 7, piano, sizeof(rbn_program));
 
+    rbn_program* tuned_percussion = inst->programs + 8;
+    tuned_percussion->operators[0].freq_ratio = 1.f;
+    tuned_percussion->operators[0].output = 1.f;
+    tuned_percussion->operators[0].volume_envelope.points[0].time = 0.f;
+    tuned_percussion->operators[0].volume_envelope.points[0].value = 1.f;
+    tuned_percussion->operators[0].volume_envelope.points[1].time = 2.f;
+    tuned_percussion->operators[0].volume_envelope.points[1].value = 0.25f;
+    tuned_percussion->operators[0].volume_envelope.points[2].time = 4.f;
+    tuned_percussion->operators[0].volume_envelope.points[2].value = 0.f;
+    tuned_percussion->operators[0].volume_envelope.release_time = 0.1f;
+    tuned_percussion->operators[1].freq_ratio = 8.f;
+    tuned_percussion->operators[1].volume_envelope.points[0].time = 0.f;
+    tuned_percussion->operators[1].volume_envelope.points[0].value = 0.1f;
+    tuned_percussion->operators[1].volume_envelope.release_time = -1.f;
+    tuned_percussion->op_matrix[1][0] = 1.f;
+    RBN_MEMCPY(inst->programs + 9, tuned_percussion, sizeof(rbn_program));
+    RBN_MEMCPY(inst->programs + 10, tuned_percussion, sizeof(rbn_program));
+    RBN_MEMCPY(inst->programs + 11, tuned_percussion, sizeof(rbn_program));
+    RBN_MEMCPY(inst->programs + 12, tuned_percussion, sizeof(rbn_program));
+    RBN_MEMCPY(inst->programs + 13, tuned_percussion, sizeof(rbn_program));
+    RBN_MEMCPY(inst->programs + 14, tuned_percussion, sizeof(rbn_program));
+    RBN_MEMCPY(inst->programs + 15, tuned_percussion, sizeof(rbn_program));
+
     rbn_program* organ = inst->programs + 16;
     organ->operators[0].freq_ratio = 0.4999f;
     organ->operators[0].output = 0.25f;
