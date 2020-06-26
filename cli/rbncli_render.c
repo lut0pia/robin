@@ -17,13 +17,14 @@ static tml_message* demo_sequence() {
 
     unsigned int time = 0;
     tml_message* cur = seq;
+    const char chord[3] = {0, 4, 7};
     for(uintptr_t i = 0; i < 128; i++) {
       cur->time = time;
       cur->type = TML_PROGRAM_CHANGE;
       cur->program = i;
       cur++;
       for(uintptr_t j = 0; j < 3; j++) {
-        char key = 60 + j * 4;
+        char key = 60 + chord[j];
         cur->time = time;
         cur->type = TML_NOTE_ON;
         cur->key = key;
