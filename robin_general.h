@@ -223,6 +223,27 @@ extern "C" {
     inst->programs[70] = *reed;
     inst->programs[71] = *reed;
 
+    rbn_program* melodic_drum = inst->programs + 112;
+    melodic_drum->operators[0].freq_ratio = 0.5f;
+    melodic_drum->operators[0].output = 4.f;
+    melodic_drum->operators[0].volume_envelope.points[0].time = 0.f;
+    melodic_drum->operators[0].volume_envelope.points[0].value = 1.f;
+    melodic_drum->operators[0].volume_envelope.points[1].time = 0.2f;
+    melodic_drum->operators[0].volume_envelope.points[1].value = 0.75f;
+    melodic_drum->operators[0].volume_envelope.points[2].time = 0.35f;
+    melodic_drum->operators[0].volume_envelope.points[2].value = 0.f;
+    melodic_drum->operators[0].pitch_envelope.points[0].time = 0.001f;
+    melodic_drum->operators[0].pitch_envelope.points[0].value = 1.f;
+    melodic_drum->operators[0].pitch_envelope.points[1].time = 0.25f;
+    melodic_drum->operators[0].pitch_envelope.points[1].value = -2.f;
+    inst->programs[113] = *melodic_drum;
+    inst->programs[114] = *melodic_drum;
+    inst->programs[115] = *melodic_drum;
+    inst->programs[116] = *melodic_drum;
+    inst->programs[117] = *melodic_drum;
+    inst->programs[118] = *melodic_drum;
+    inst->programs[119] = *melodic_drum;
+
     // Default percussion
 #if 0
     for(uintptr_t i = 128; i < RBN_PROGRAM_COUNT; i++) {
