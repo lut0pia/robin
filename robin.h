@@ -215,6 +215,21 @@ extern "C" {
 #define RBN_TAU 6.2832f
 #define RBN_INV_TAU (1.f/6.2832f)
 
+#ifndef RBN_SIN
+#include <math.h>
+#define RBN_SIN(x) sinf(x)
+#endif
+
+#ifndef RBN_COS
+#include <math.h>
+#define RBN_COS(x) cosf(x)
+#endif
+
+#ifndef RBN_POW
+#include <math.h>
+#define RBN_POW(x,y) powf(x,y)
+#endif
+
 #ifndef RBN_RAND
 #include <stdlib.h>
 #define RBN_RAND() (((float)rand() / (RAND_MAX / 2)) - 1.f)
@@ -237,14 +252,14 @@ extern "C" {
   static void rbn_channel_update_volumes(rbn_channel* channel) {
     const float channel_volume = (channel->controls[rbn_volume] / 126.f) * (channel->controls[rbn_expression] / 126.f);
     const float pan = channel->controls[rbn_pan] / 126.f;
-    channel->volume[0] = channel_volume * cosf((RBN_PI / 2.f) * pan);
-    channel->volume[1] = channel_volume * sinf((RBN_PI / 2.f) * pan);
+    channel->volume[0] = channel_volume * RBN_COS((RBN_PI / 2.f) * pan);
+    channel->volume[1] = channel_volume * RBN_SIN((RBN_PI / 2.f) * pan);
   }
 
   static void rbn_voice_compute_base_freq_rate(const rbn_instance* inst, rbn_voice* voice) {
     const rbn_channel* channel = inst->channels + voice->channel;
     const float key = (voice->key - 69.f) + channel->pitch_bend;
-    const float frequency = 440.f * powf(2.f, key / 12.f);
+    const float frequency = 440.f * RBN_POW(2.f, key / 12.f);
     voice->base_freq_rate = frequency / inst->config.sample_rate;
   }
 
@@ -313,7 +328,7 @@ extern "C" {
 
         const float noisef = program->operators[j].noise;
         const float noise = RBN_RAND();
-        values[j] = (sinf(phase * RBN_TAU) * (1.f - noisef) + noise * noisef) * volumes[j];
+        values[j] = (RBN_SIN(phase * RBN_TAU) * (1.f - noisef) + noise * noisef) * volumes[j];
         volumes[j] += volume_rates[j];
       }
 
@@ -322,7 +337,7 @@ extern "C" {
         samples[i * 2 + 0] += value * channel->volume[0];
         samples[i * 2 + 1] += value * channel->volume[1];
 
-        voice->phases[j] += base_freq_rate * operators[j].freq_ratio * powf(2.f, pitches[j]);
+        voice->phases[j] += base_freq_rate * operators[j].freq_ratio * RBN_POW(2.f, pitches[j]);
         voice->values[j] = values[j];
         pitches[j] += pitch_rates[j];
       }
