@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 
 project(rbncli LANGUAGES C)
 
-file(GLOB SOURCES "*.c" "*.h")
+file(GLOB SOURCES "*.c" "*.h" "../*.h")
 list(FILTER SOURCES EXCLUDE REGEX "/export.c") # Generated file
 if(WIN32)
   list(FILTER SOURCES EXCLUDE REGEX ".*_unix\.c")
