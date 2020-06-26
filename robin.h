@@ -211,7 +211,7 @@ extern "C" {
 extern "C" {
 #endif
 
-#define RBN_PI 3.1415f
+#define RBN_PI 3.1416f
 #define RBN_TAU 6.2832f
 #define RBN_INV_TAU (1.f/6.2832f)
 
