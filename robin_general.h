@@ -301,7 +301,7 @@ extern "C" {
     open_hihat->operators[0].output = 0.5f;
     open_hihat->operators[0].volume_envelope.points[0].time = 0.f;
     open_hihat->operators[0].volume_envelope.points[0].value = 1.f;
-    open_hihat->operators[0].volume_envelope.points[1].time = 0.1f;
+    open_hihat->operators[0].volume_envelope.points[1].time = 0.15f;
     open_hihat->operators[0].volume_envelope.points[1].value = 0.f;
     RBN_MEMCPY(inst->programs + 93 + 49, open_hihat, sizeof(rbn_program));
     RBN_MEMCPY(inst->programs + 93 + 51, open_hihat, sizeof(rbn_program));
