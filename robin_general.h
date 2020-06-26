@@ -268,6 +268,25 @@ extern "C" {
     hand_clap->operators[0].volume_envelope.points[5].time = 0.06f;
     hand_clap->operators[0].volume_envelope.points[5].value = 0.f;
 
+    rbn_program* tom = inst->programs + 93 + 41;
+    tom->operators[0].freq_ratio = 0.2f;
+    tom->operators[0].output = 8.f;
+    tom->operators[0].volume_envelope.points[0].time = 0.f;
+    tom->operators[0].volume_envelope.points[0].value = 1.f;
+    tom->operators[0].volume_envelope.points[1].time = 0.2f;
+    tom->operators[0].volume_envelope.points[1].value = 0.75f;
+    tom->operators[0].volume_envelope.points[2].time = 0.35f;
+    tom->operators[0].volume_envelope.points[2].value = 0.f;
+    tom->operators[0].pitch_envelope.points[0].time = 0.001f;
+    tom->operators[0].pitch_envelope.points[0].value = 1.f;
+    tom->operators[0].pitch_envelope.points[1].time = 0.25f;
+    tom->operators[0].pitch_envelope.points[1].value = 0.f;
+    RBN_MEMCPY(inst->programs + 93 + 43, tom, sizeof(rbn_program));
+    RBN_MEMCPY(inst->programs + 93 + 45, tom, sizeof(rbn_program));
+    RBN_MEMCPY(inst->programs + 93 + 47, tom, sizeof(rbn_program));
+    RBN_MEMCPY(inst->programs + 93 + 48, tom, sizeof(rbn_program));
+    RBN_MEMCPY(inst->programs + 93 + 50, tom, sizeof(rbn_program));
+
     rbn_program* closed_hihat = inst->programs + 93 + 42;
     closed_hihat->operators[0].noise = 1.f;
     closed_hihat->operators[0].output = 0.5f;
