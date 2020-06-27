@@ -108,7 +108,6 @@ int rbncli_render_mid(int argc, char** argv) {
   tml_message* current_msg = mid_seq;
   uint64_t current_sample = 0;
   uint64_t total_rendering_time = 0;
-  uint64_t total_rendered_samples = 0;
   while(current_msg) {
     const uint64_t current_time = (current_sample * 1000) / sample_rate;
 
@@ -125,7 +124,6 @@ int rbncli_render_mid(int argc, char** argv) {
 
       int16_t* buffer = malloc(samples_to_render * sizeof(int16_t) * 2);
 
-      const uint64_t previous_rendered_samples = inst.rendered_samples;
       const uint64_t previous_time = rbncli_get_time();
 
       rbn_result result = rbn_render(&inst, buffer, samples_to_render);
@@ -137,7 +135,6 @@ int rbncli_render_mid(int argc, char** argv) {
       }
 
       total_rendering_time += rbncli_get_time() - previous_time;
-      total_rendered_samples += inst.rendered_samples - previous_rendered_samples;
 
       fwrite(buffer, sizeof(int16_t) * 2, samples_to_render, wavfile);
 
@@ -167,7 +164,7 @@ int rbncli_render_mid(int argc, char** argv) {
   tml_free(mid_seq);
   fclose(wavfile);
 
-  printf("Samples per us: %f\n", (double)total_rendered_samples / (double)total_rendering_time);
+  printf("Samples per us: %f\n", (double)inst.rendered_samples / (double)total_rendering_time);
 
   return 0;
 }
