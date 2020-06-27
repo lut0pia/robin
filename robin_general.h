@@ -246,6 +246,8 @@ extern "C" {
     inst->programs[118] = *melodic_drum;
     inst->programs[119] = *melodic_drum;
 
+    rbn_program* perc_programs = inst->programs + RBN_KEYMAP_OFFSET;
+
     // Default percussion
 #if 0
     for(uintptr_t i = 128; i < RBN_PROGRAM_COUNT; i++) {
@@ -262,7 +264,7 @@ extern "C" {
     }
 #endif
 
-    rbn_program* bass_drum = inst->programs + RBN_KEYMAP_OFFSET + 35;
+    rbn_program* bass_drum = perc_programs + 35;
     bass_drum->operators[0].freq_ratio = 0.2f;
     bass_drum->operators[0].output = 8.f;
     bass_drum->operators[0].volume_envelope.points[0].time = 0.f;
@@ -275,9 +277,9 @@ extern "C" {
     bass_drum->operators[0].pitch_envelope.points[0].value = 1.f;
     bass_drum->operators[0].pitch_envelope.points[1].time = 0.25f;
     bass_drum->operators[0].pitch_envelope.points[1].value = -2.f;
-    RBN_MEMCPY(inst->programs + RBN_KEYMAP_OFFSET + 36, bass_drum, sizeof(rbn_program));
+    perc_programs[36] = *bass_drum;
 
-    rbn_program* side_stick = inst->programs + RBN_KEYMAP_OFFSET + 37;
+    rbn_program* side_stick = perc_programs + 37;
     side_stick->operators[0].freq_ratio = 1.f;
     side_stick->operators[0].noise = 0.1f;
     side_stick->operators[0].output = 2.f;
@@ -292,7 +294,7 @@ extern "C" {
     side_stick->operators[1].volume_envelope.points[0].value = 1.f;
     side_stick->op_matrix[1][0] = 5.f;
 
-    rbn_program* snare = inst->programs + RBN_KEYMAP_OFFSET + 38;
+    rbn_program* snare = perc_programs + 38;
     snare->operators[0].freq_ratio = 0.6f;
     snare->operators[0].output = 8.f;
     snare->operators[0].volume_envelope.points[0].time = 0.f;
@@ -314,9 +316,9 @@ extern "C" {
     snare->operators[1].volume_envelope.points[2].time = 0.3f;
     snare->operators[1].volume_envelope.points[2].value = 0.f;
     snare->operators[1].volume_envelope.release_time = -1.f;
-    RBN_MEMCPY(inst->programs + RBN_KEYMAP_OFFSET + 40, snare, sizeof(rbn_program));
+    perc_programs[40] = *snare;
 
-    rbn_program* hand_clap = inst->programs + RBN_KEYMAP_OFFSET + 39;
+    rbn_program* hand_clap = perc_programs + 39;
     hand_clap->operators[0].noise = 1.f;
     hand_clap->operators[0].output = 2.f;
     hand_clap->operators[0].volume_envelope.points[0].time = 0.001f;
@@ -332,7 +334,7 @@ extern "C" {
     hand_clap->operators[0].volume_envelope.points[5].time = 0.06f;
     hand_clap->operators[0].volume_envelope.points[5].value = 0.f;
 
-    rbn_program* tom = inst->programs + RBN_KEYMAP_OFFSET + 41;
+    rbn_program* tom = perc_programs + 41;
     tom->operators[0].freq_ratio = 0.2f;
     tom->operators[0].output = 8.f;
     tom->operators[0].volume_envelope.points[0].time = 0.f;
@@ -345,13 +347,13 @@ extern "C" {
     tom->operators[0].pitch_envelope.points[0].value = 1.f;
     tom->operators[0].pitch_envelope.points[1].time = 0.25f;
     tom->operators[0].pitch_envelope.points[1].value = 0.f;
-    RBN_MEMCPY(inst->programs + RBN_KEYMAP_OFFSET + 43, tom, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + RBN_KEYMAP_OFFSET + 45, tom, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + RBN_KEYMAP_OFFSET + 47, tom, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + RBN_KEYMAP_OFFSET + 48, tom, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + RBN_KEYMAP_OFFSET + 50, tom, sizeof(rbn_program));
+    perc_programs[43] = *tom;
+    perc_programs[45] = *tom;
+    perc_programs[47] = *tom;
+    perc_programs[48] = *tom;
+    perc_programs[50] = *tom;
 
-    rbn_program* closed_hihat = inst->programs + RBN_KEYMAP_OFFSET + 42;
+    rbn_program* closed_hihat = perc_programs + 42;
     closed_hihat->operators[0].noise = 1.f;
     closed_hihat->operators[0].output = 0.5f;
     closed_hihat->operators[0].volume_envelope.points[0].time = 0.f;
@@ -359,7 +361,7 @@ extern "C" {
     closed_hihat->operators[0].volume_envelope.points[1].time = 0.05f;
     closed_hihat->operators[0].volume_envelope.points[1].value = 0.f;
 
-    rbn_program* pedal_hihat = inst->programs + RBN_KEYMAP_OFFSET + 44;
+    rbn_program* pedal_hihat = perc_programs + 44;
     pedal_hihat->operators[0].noise = 1.f;
     pedal_hihat->operators[0].output = 0.5f;
     pedal_hihat->operators[0].volume_envelope.points[0].time = 0.f;
@@ -367,16 +369,16 @@ extern "C" {
     pedal_hihat->operators[0].volume_envelope.points[1].time = 0.1f;
     pedal_hihat->operators[0].volume_envelope.points[1].value = 0.f;
 
-    rbn_program* open_hihat = inst->programs + RBN_KEYMAP_OFFSET + 46;
+    rbn_program* open_hihat = perc_programs + 46;
     open_hihat->operators[0].noise = 1.f;
     open_hihat->operators[0].output = 0.5f;
     open_hihat->operators[0].volume_envelope.points[0].time = 0.f;
     open_hihat->operators[0].volume_envelope.points[0].value = 1.f;
     open_hihat->operators[0].volume_envelope.points[1].time = 0.15f;
     open_hihat->operators[0].volume_envelope.points[1].value = 0.f;
-    RBN_MEMCPY(inst->programs + RBN_KEYMAP_OFFSET + 49, open_hihat, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + RBN_KEYMAP_OFFSET + 51, open_hihat, sizeof(rbn_program));
-    RBN_MEMCPY(inst->programs + RBN_KEYMAP_OFFSET + 55, open_hihat, sizeof(rbn_program));
+    perc_programs[49] = *open_hihat;
+    perc_programs[51] = *open_hihat;
+    perc_programs[55] = *open_hihat;
 
     return rbn_refresh(inst);
   }
