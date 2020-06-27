@@ -7,6 +7,7 @@
 #define RBN_GENERAL_MIDI
 #define RBN_CHAN_COUNT 16
 #define RBN_PROGRAM_COUNT 175 // 128 tonal instruments + 47 percussive sounds
+#define RBN_VOICE_COUNT 128
 #define RBN_OPERATOR_COUNT 8
 #define RBN_ENVPT_COUNT 6
 #define RBN_FILTER_COUNT 4
