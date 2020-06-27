@@ -509,11 +509,11 @@ extern "C" {
         voice->channel = channel;
         voice->key = key;
         voice->velocity = velocity;
-#ifdef RBN_GENERAL_MIDI // TODO: Make this more generic?
-        if(channel == 9) { // Percussions
+#ifdef RBN_KEYMAP_CHANNEL
+        if(channel == RBN_KEYMAP_CHANNEL) {
           voice->key = 60;
-          voice->program = inst->programs + 93 + key;
-          // Percussions are instantly off
+          voice->program = inst->programs + RBN_KEYMAP_OFFSET + key;
+          // Keymapped notes are instantly off
           voice->release_index = voice->press_index + voice->program->sustain_samples;
           voice->inactive_index = voice->release_index + voice->program->release_samples;
         }
