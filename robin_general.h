@@ -51,7 +51,7 @@ extern "C" {
 
     rbn_program* piano = inst->programs + 0;
     piano->operators[0].freq_ratio = 1.f;
-    piano->operators[0].output = 1.f;
+    piano->operators[0].output = 0.5f;
     piano->operators[0].volume_envelope.points[0].time = 0.f;
     piano->operators[0].volume_envelope.points[0].value = 1.f;
     piano->operators[0].volume_envelope.points[1].time = 2.f;
@@ -75,7 +75,7 @@ extern "C" {
 
     rbn_program* tuned_percussion = inst->programs + 8;
     tuned_percussion->operators[0].freq_ratio = 1.f;
-    tuned_percussion->operators[0].output = 1.f;
+    tuned_percussion->operators[0].output = 0.5f;
     tuned_percussion->operators[0].volume_envelope.points[0].time = 0.f;
     tuned_percussion->operators[0].volume_envelope.points[0].value = 1.f;
     tuned_percussion->operators[0].volume_envelope.points[1].time = 2.f;
@@ -127,7 +127,7 @@ extern "C" {
 
     rbn_program* guitar = inst->programs + 24;
     guitar->operators[0].freq_ratio = 1.f;
-    guitar->operators[0].output = 1.f;
+    guitar->operators[0].output = 0.5f;
     guitar->operators[0].volume_envelope.points[0].time = 0.f;
     guitar->operators[0].volume_envelope.points[0].value = 1.f;
     guitar->operators[0].volume_envelope.points[1].time = 2.0f;
@@ -225,7 +225,7 @@ extern "C" {
 
     rbn_program* melodic_drum = inst->programs + 112;
     melodic_drum->operators[0].freq_ratio = 0.5f;
-    melodic_drum->operators[0].output = 4.f;
+    melodic_drum->operators[0].output = 1.f;
     melodic_drum->operators[0].volume_envelope.points[0].time = 0.f;
     melodic_drum->operators[0].volume_envelope.points[0].value = 1.f;
     melodic_drum->operators[0].volume_envelope.points[1].time = 0.2f;
