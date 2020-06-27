@@ -419,7 +419,7 @@ extern "C" {
 
   rbn_result rbn_reset(rbn_instance* inst) {
     RBN_MEMSET(&inst->voices, 0, sizeof(inst->voices));
-    
+
     inst->sample_index = 0;
     inst->rendered_samples = 0;
     inst->dynamic_range = 1.f;
