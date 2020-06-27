@@ -4,7 +4,7 @@ Robin aims to be a single-header MIDI-compliant frequency modulation synthesizer
 
 ## Usage
 
-You can use Robin by placing `robin.h` in your project folder and including it. You need to include it once with the `RBN_IMPLEMENTATION` macro defined to actually define the functions, while - without the macro defined - it will only declare the robin's structures and functions.
+You can use Robin by placing `robin.h` in your project folder and including it. You need to include it once with the `RBN_IMPLEMENTATION` macro defined to actually define the functions, while - without the macro defined - it will only declare robin's structures and functions.
 
 ```
 #define RBN_IMPLEMENTATION
