@@ -522,8 +522,6 @@ extern "C" {
         return rbn_success;
       }
     }
-    // Unable to play note, panic?
-    __debugbreak();
     return rbn_out_of_voice;
   }
 
