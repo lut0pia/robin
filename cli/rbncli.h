@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "miniaudio.h"
+struct tsf_stream;
 #include "tml.h"
 #include "../robin_general.h"
 
