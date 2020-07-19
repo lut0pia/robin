@@ -1,8 +1,37 @@
 #include "rbncli.h"
 
+#include <stdlib.h>
+#include <assert.h>
+
+static const size_t sample_size = sizeof(uint16_t) * 2;
+
+typedef struct rbncli_sample_buffer {
+  uintptr_t index;
+  int16_t samples[RBN_BLOCK_SAMPLES * 2];
+} rbncli_sample_buffer;
+
 static void data_callback(ma_device* device, void* output, const void* input, ma_uint32 sample_count) {
+  rbncli_sample_buffer* buffer = (rbncli_sample_buffer*)device->pUserData;
   rbncli_lock();
-  rbn_render(&inst, output, sample_count);
+  while(sample_count > 0) {
+    size_t advance_sample_count;
+    if(buffer->index > 0) {
+      advance_sample_count = RBN_BLOCK_SAMPLES - buffer->index;
+      assert(sample_count >= advance_sample_count);
+      memcpy(output, buffer->samples + buffer->index * 2, advance_sample_count * sample_size);
+      buffer->index = 0;
+    } else if(sample_count < RBN_BLOCK_SAMPLES) {
+      rbn_render(&inst, buffer->samples, RBN_BLOCK_SAMPLES);
+      advance_sample_count = sample_count;
+      memcpy(output, buffer->samples + buffer->index * 2, advance_sample_count * sample_size);
+      buffer->index = sample_count;
+    } else {
+      advance_sample_count = (sample_count / RBN_BLOCK_SAMPLES) * RBN_BLOCK_SAMPLES;
+      rbn_render(&inst, output, advance_sample_count);
+    }
+    sample_count -= advance_sample_count;
+    output = (uint8_t*)output + advance_sample_count * sample_size;
+  }
   rbncli_unlock();
 }
 
@@ -13,6 +42,7 @@ int rbncli_init_ma_device(ma_device* device) {
   device_config.playback.channels = 2;
   device_config.sampleRate = sample_rate;
   device_config.dataCallback = data_callback;
+  device_config.pUserData = calloc(1, sizeof(rbncli_sample_buffer));
 
   if(ma_device_init(NULL, &device_config, device) != MA_SUCCESS) {
     printf("Failed to open playback device.\n");
