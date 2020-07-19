@@ -8,6 +8,10 @@ struct tsf_stream;
 #include "tml.h"
 #include "../robin_general.h"
 
+#define RBNCLI_SUCCESS 0
+#define RBNCLI_ERR_EXIT -2
+#define RBNCLI_ERR_UNKNOWN -1
+
 static const uint32_t sample_rate = 44100;
 extern rbn_instance inst;
 

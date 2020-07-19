@@ -28,7 +28,9 @@ int rbncli_print_help(int argc, char** argv) {
 }
 
 static int handle_cmd(int argc, char** argv) {
-  if(argc >= 2 && !strcmp(argv[0], "play")) {
+  if(argc == 1 && !strcmp(argv[0], "exit")) {
+    return RBNCLI_ERR_EXIT;
+  } else if(argc >= 2 && !strcmp(argv[0], "play")) {
     return rbncli_play_mid(argc - 1, argv + 1);
   } else if(argc >= 2 && !strcmp(argv[0], "render")) {
     return rbncli_render_mid(argc - 1, argv + 1);
@@ -40,7 +42,7 @@ static int handle_cmd(int argc, char** argv) {
     return rbncli_export_prg(argc - 1, argv + 1);
   } else {
     rbncli_print_help(argc, argv);
-    return -1;
+    return RBNCLI_ERR_UNKNOWN;
   }
 }
 
@@ -71,10 +73,7 @@ int main(int argc, char** argv) {
       argv2[argc2] = strtok(argc2 == 0 ? cmd : NULL, " \n");
     } while(argv2[argc2++]);
     argc2--;
-
-    handle_cmd(argc2, argv2);
-
-  } while(argc2 < 1 || strcmp(argv2[0], "exit"));
+  } while(handle_cmd(argc2, argv2) != RBNCLI_ERR_EXIT);
 
   return 0;
 }
