@@ -51,6 +51,7 @@ void rbncli_progress_bar(uint32_t current, uint32_t* last) {
     *last = current;
   } else if(!last || current > * last) {
     printf("\r%02u%%\t", current);
+    fflush(stdout);
     if(last) {
       *last = current;
     }
