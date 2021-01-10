@@ -440,7 +440,7 @@ extern "C" {
         switch(inst->config.sample_format) {
           case rbn_s16:
             for(uintptr_t j = 0; j < RBN_BLOCK_SAMPLES * 2; j++) {
-              const float range = fabs(fsamples[j]) * 1.01f;
+              const float range = fabsf(fsamples[j]) * 1.01f;
               if(range > inst->dynamic_range) {
                 inst->dynamic_range = range;
               }
