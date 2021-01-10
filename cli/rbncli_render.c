@@ -80,7 +80,7 @@ int rbncli_render_mid(int argc, char** argv) {
   tml_get_info(mid_seq, NULL, NULL, NULL, NULL, &total_time);
 
   char wavfilename[128] = "";
-  sprintf(wavfilename, "%s.wav", filename);
+  snprintf(wavfilename, sizeof(wavfilename), "%s.wav", filename);
 
   const uint32_t channels = 2;
   const uint32_t bytes_per_block = sizeof(int16_t) * channels;
