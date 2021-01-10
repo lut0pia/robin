@@ -1,6 +1,7 @@
 #include "rbncli.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 
 static const size_t sample_size = sizeof(uint16_t) * 2;
