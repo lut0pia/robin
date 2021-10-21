@@ -362,6 +362,14 @@ extern "C" {
     return rbn_success;
   }
 
+  static float rbn_compute_dynamic_range(rbn_instance* inst, float sample) {
+    const float range = fabsf(sample) * 1.01f;
+    if(range > inst->dynamic_range) {
+      inst->dynamic_range = range;
+    }
+    return sample / inst->dynamic_range;
+  }
+
   rbn_result rbn_init(rbn_instance* inst, const rbn_config* config) {
     RBN_MEMSET(inst, 0, sizeof(rbn_instance));
     RBN_MEMCPY(&inst->config, config, sizeof(*config));
@@ -427,24 +435,20 @@ extern "C" {
     return rbn_success;
   }
 
-  rbn_result rbn_render(rbn_instance* inst, void* samples, uint64_t sample_count) {
+  rbn_result rbn_render(rbn_instance* inst, void* vsamples, uint64_t sample_count) {
     if(sample_count % RBN_BLOCK_SAMPLES != 0) {
       return rbn_nonblock_render_size;
     }
     for(uintptr_t i = 0; i < sample_count; i += RBN_BLOCK_SAMPLES) {
-      float fsamples[RBN_BLOCK_SAMPLES * 2] = {0};
-      rbn_result result = rbn_render_block(inst, fsamples);
+      float samples[RBN_BLOCK_SAMPLES * 2] = {0};
+      rbn_result result = rbn_render_block(inst, samples);
       if(result == rbn_success) {
         // Convert float to output format
-        int16_t* isamples = (int16_t*)samples + i * 2;
+        int16_t* i16samples = (int16_t*)vsamples + i * 2;
         switch(inst->config.sample_format) {
           case rbn_s16:
             for(uintptr_t j = 0; j < RBN_BLOCK_SAMPLES * 2; j++) {
-              const float range = fabsf(fsamples[j]) * 1.01f;
-              if(range > inst->dynamic_range) {
-                inst->dynamic_range = range;
-              }
-              isamples[j] = (int16_t)((fsamples[j] / inst->dynamic_range) * 0x8000);
+              i16samples[j] = (int16_t)(rbn_compute_dynamic_range(inst, samples[j]) * 0x8000);
             }
             break;
           default:
