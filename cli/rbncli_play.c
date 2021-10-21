@@ -30,8 +30,10 @@ int rbncli_play_mid(int argc, char** argv) {
 
     int32_t time_to_wait = current_msg->time - current_time;
     if(time_to_wait > 0) {
+      const uint64_t previous_time_us = rbncli_get_time();
       rbncli_sleep(time_to_wait);
-      current_time += time_to_wait;
+      const uint64_t elapsed_time_us = rbncli_get_time() - previous_time_us;
+      current_time += elapsed_time_us / 1000;
     }
 
     if((1 << current_msg->channel) & channel_mask) {
