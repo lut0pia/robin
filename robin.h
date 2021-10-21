@@ -392,11 +392,11 @@ extern "C" {
       program->sustain_samples = 0;
       program->release_samples = 0;
       for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
-        rbn_operator* operator = program->operators + j;
+        rbn_operator* op = program->operators + j;
 
         // Compute max release time in samples
-        if(operator->volume_envelope.release_time > 0.f) {
-          uint64_t release_samples = (uint64_t)(operator->volume_envelope.release_time * inst->config.sample_rate);
+        if(op->volume_envelope.release_time > 0.f) {
+          uint64_t release_samples = (uint64_t)(op->volume_envelope.release_time * inst->config.sample_rate);
           if(release_samples > program->release_samples) {
             program->release_samples = release_samples;
           }
@@ -404,8 +404,8 @@ extern "C" {
 
         // Compute max time to sustain in samples
         for(uintptr_t k = 0; k < RBN_ENVPT_COUNT; k++) {
-          if(operator->volume_envelope.points[k].time > 0.f) {
-            uint64_t sustain_samples = (uint64_t)(operator->volume_envelope.points[k].time * inst->config.sample_rate);
+          if(op->volume_envelope.points[k].time > 0.f) {
+            uint64_t sustain_samples = (uint64_t)(op->volume_envelope.points[k].time * inst->config.sample_rate);
             if(sustain_samples > program->sustain_samples) {
               program->sustain_samples = sustain_samples;
             }
