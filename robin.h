@@ -55,6 +55,7 @@ extern "C" {
   } rbn_result;
 
   typedef enum rbn_sample_format {
+    rbn_f32,
     rbn_s16,
   } rbn_sample_format;
 
@@ -168,8 +169,15 @@ extern "C" {
 
   typedef struct rbn_config {
     uint32_t sample_rate;
-    rbn_sample_format sample_format;
   } rbn_config;
+
+  typedef struct rbn_output_config {
+    void* left_buffer;
+    void* right_buffer;
+    intptr_t stride;
+    uint64_t sample_count;
+    rbn_sample_format sample_format;
+  } rbn_output_config;
 
   typedef struct rbn_instance {
     rbn_config config;
@@ -194,7 +202,7 @@ extern "C" {
   RBNDEF rbn_result rbn_shutdown(rbn_instance* inst);
   RBNDEF rbn_result rbn_refresh(rbn_instance* inst);
   RBNDEF rbn_result rbn_reset(rbn_instance* inst);
-  RBNDEF rbn_result rbn_render(rbn_instance* inst, void* samples, uint64_t sample_count);
+  RBNDEF rbn_result rbn_render(rbn_instance* inst, rbn_output_config* output_config);
 
   RBNDEF rbn_result rbn_send_msg(rbn_instance* inst, rbn_msg msg);
   RBNDEF rbn_result rbn_play_note(rbn_instance* inst, uint8_t channel, uint8_t key, uint8_t velocity);
@@ -372,25 +380,44 @@ extern "C" {
     return sample / inst->dynamic_range;
   }
 
-  static uint64_t rbn_output_samples(rbn_instance* inst, void** vsamples, uint64_t* sample_count) {
-    const uint64_t buffered_samples = inst->sample_index - inst->output_index;
-    if(buffered_samples == 0) {
-      return *sample_count;
+  static uint64_t rbn_output_samples(rbn_instance* inst, rbn_output_config* output_config) {
+    uint64_t output_sample_count = inst->sample_index - inst->output_index;
+    if(output_sample_count == 0) {
+      return output_config->sample_count;
     }
-    const uint64_t output_sample_count = min(buffered_samples, *sample_count);
+    if(output_sample_count > output_config->sample_count) {
+      output_sample_count = output_config->sample_count;
+    }
     float* bsamples = inst->sample_buffer + (inst->output_index % RBN_BLOCK_SAMPLES) * 2;
-    int16_t* i16samples = (int16_t*)*vsamples;
-    switch(inst->config.sample_format) {
-      case rbn_s16:
-        for(uintptr_t j = 0; j < output_sample_count * 2; j++) {
-          *i16samples++ = (int16_t)(rbn_compute_dynamic_range(inst, *bsamples++) * 0x8000);
+    float* lf32samples = (float*)output_config->left_buffer;
+    float* rf32samples = (float*)output_config->right_buffer;
+    int16_t* li16samples = (int16_t*)output_config->left_buffer;
+    int16_t* ri16samples = (int16_t*)output_config->right_buffer;
+    switch(output_config->sample_format) {
+      case rbn_f32:
+        for(uintptr_t i = 0; i < output_sample_count; i++) {
+          *lf32samples = rbn_compute_dynamic_range(inst, *bsamples++);
+          *rf32samples = rbn_compute_dynamic_range(inst, *bsamples++);
+          lf32samples += output_config->stride;
+          rf32samples += output_config->stride;
         }
-        *vsamples = i16samples;
+        output_config->left_buffer = lf32samples;
+        output_config->right_buffer = rf32samples;
+        break;
+      case rbn_s16:
+        for(uintptr_t i = 0; i < output_sample_count; i++) {
+          *li16samples = (int16_t)(rbn_compute_dynamic_range(inst, *bsamples++) * 0x8000);
+          *ri16samples = (int16_t)(rbn_compute_dynamic_range(inst, *bsamples++) * 0x8000);
+          li16samples += output_config->stride;
+          ri16samples += output_config->stride;
+        }
+        output_config->left_buffer = li16samples;
+        output_config->right_buffer = ri16samples;
         break;
     }
     inst->output_index += output_sample_count;
-    *sample_count -= output_sample_count;
-    return *sample_count;
+    output_config->sample_count -= output_sample_count;
+    return output_config->sample_count;
   }
 
   rbn_result rbn_init(rbn_instance* inst, const rbn_config* config) {
@@ -459,8 +486,8 @@ extern "C" {
     return rbn_success;
   }
 
-  rbn_result rbn_render(rbn_instance* inst, void* vsamples, uint64_t sample_count) {
-    while(rbn_output_samples(inst, &vsamples, &sample_count) > 0) {
+  rbn_result rbn_render(rbn_instance* inst, rbn_output_config* output_config) {
+    while(rbn_output_samples(inst, output_config) > 0) {
       memset(inst->sample_buffer, 0, sizeof(inst->sample_buffer));
       rbn_result result = rbn_render_block(inst, inst->sample_buffer);
       if(result != rbn_success) {

@@ -51,7 +51,6 @@ int main(int argc, char** argv) {
 
   rbn_config config = {
     .sample_rate = sample_rate,
-    .sample_format = rbn_s16,
   };
   rbn_general_init(&inst, &config);
 

@@ -121,7 +121,16 @@ int rbncli_render_mid(int argc, char** argv) {
 
       const uint64_t previous_time = rbncli_get_time();
 
-      rbn_result result = rbn_render(&inst, buffer, samples_to_render);
+      rbn_output_config output_config = {
+        .left_buffer = buffer,
+        .right_buffer = buffer + 1,
+        .stride = 2,
+        .sample_count = samples_to_render,
+        .sample_format = rbn_s16,
+      };
+
+      rbn_result result = rbn_render(&inst, &output_config);
+
       if(result != rbn_success) {
         printf("rbn_render failed\n");
         tml_free(mid_seq);

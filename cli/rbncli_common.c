@@ -6,7 +6,14 @@
 
 static void data_callback(ma_device* device, void* output, const void* input, ma_uint32 sample_count) {
   rbncli_lock();
-  rbn_render(&inst, output, sample_count);
+  rbn_output_config output_config = {
+    .left_buffer = output,
+    .right_buffer = (int16_t*)output + 1,
+    .stride = 2,
+    .sample_count = sample_count,
+    .sample_format = rbn_s16,
+  };
+  rbn_render(&inst, &output_config);
   rbncli_unlock();
 }
 
