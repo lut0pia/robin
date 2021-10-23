@@ -115,12 +115,7 @@ int rbncli_render_mid(int argc, char** argv) {
 
     const int64_t time_to_wait = current_msg->time - current_time;
     if(time_to_wait > 0) {
-      uint32_t samples_to_render = (uint32_t)((time_to_wait * sample_rate) / 1000);
-
-      // Pad sample count to block size
-      if(samples_to_render % RBN_BLOCK_SAMPLES > 0) {
-        samples_to_render += RBN_BLOCK_SAMPLES - (samples_to_render % RBN_BLOCK_SAMPLES);
-      }
+      const uint32_t samples_to_render = (uint32_t)((time_to_wait * sample_rate) / 1000);
 
       int16_t* buffer = malloc(samples_to_render * sizeof(int16_t) * 2);
 

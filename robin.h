@@ -52,7 +52,6 @@ extern "C" {
     rbn_unknown_control,
     rbn_unknown_sample_format,
     rbn_out_of_voice,
-    rbn_nonblock_render_size,
   } rbn_result;
 
   typedef enum rbn_sample_format {
@@ -175,6 +174,7 @@ extern "C" {
   typedef struct rbn_instance {
     rbn_config config;
     uint64_t sample_index;
+    uint64_t output_index;
     uint64_t rendered_samples;
 
     float dynamic_range;
@@ -182,6 +182,8 @@ extern "C" {
     rbn_channel channels[RBN_CHAN_COUNT];
     rbn_program programs[RBN_PROGRAM_COUNT];
     rbn_voice voices[RBN_VOICE_COUNT];
+
+    float sample_buffer[RBN_BLOCK_SAMPLES * 2];
 
     // Cached
     float inv_sample_rate;
@@ -370,6 +372,27 @@ extern "C" {
     return sample / inst->dynamic_range;
   }
 
+  static uint64_t rbn_output_samples(rbn_instance* inst, void** vsamples, uint64_t* sample_count) {
+    const uint64_t buffered_samples = inst->sample_index - inst->output_index;
+    if(buffered_samples == 0) {
+      return *sample_count;
+    }
+    const uint64_t output_sample_count = min(buffered_samples, *sample_count);
+    float* bsamples = inst->sample_buffer + (inst->output_index % RBN_BLOCK_SAMPLES) * 2;
+    int16_t* i16samples = (int16_t*)*vsamples;
+    switch(inst->config.sample_format) {
+      case rbn_s16:
+        for(uintptr_t j = 0; j < output_sample_count * 2; j++) {
+          *i16samples++ = (int16_t)(rbn_compute_dynamic_range(inst, *bsamples++) * 0x8000);
+        }
+        *vsamples = i16samples;
+        break;
+    }
+    inst->output_index += output_sample_count;
+    *sample_count -= output_sample_count;
+    return *sample_count;
+  }
+
   rbn_result rbn_init(rbn_instance* inst, const rbn_config* config) {
     RBN_MEMSET(inst, 0, sizeof(rbn_instance));
     RBN_MEMCPY(&inst->config, config, sizeof(*config));
@@ -429,6 +452,7 @@ extern "C" {
     RBN_MEMSET(&inst->voices, 0, sizeof(inst->voices));
 
     inst->sample_index = 0;
+    inst->output_index = 0;
     inst->rendered_samples = 0;
     inst->dynamic_range = 1.f;
 
@@ -436,27 +460,13 @@ extern "C" {
   }
 
   rbn_result rbn_render(rbn_instance* inst, void* vsamples, uint64_t sample_count) {
-    if(sample_count % RBN_BLOCK_SAMPLES != 0) {
-      return rbn_nonblock_render_size;
-    }
-    for(uintptr_t i = 0; i < sample_count; i += RBN_BLOCK_SAMPLES) {
-      float samples[RBN_BLOCK_SAMPLES * 2] = {0};
-      rbn_result result = rbn_render_block(inst, samples);
-      if(result == rbn_success) {
-        // Convert float to output format
-        int16_t* i16samples = (int16_t*)vsamples + i * 2;
-        switch(inst->config.sample_format) {
-          case rbn_s16:
-            for(uintptr_t j = 0; j < RBN_BLOCK_SAMPLES * 2; j++) {
-              i16samples[j] = (int16_t)(rbn_compute_dynamic_range(inst, samples[j]) * 0x8000);
-            }
-            break;
-          default:
-            return rbn_unknown_sample_format;
-        }
-      } else {
+    while(rbn_output_samples(inst, &vsamples, &sample_count) > 0) {
+      memset(inst->sample_buffer, 0, sizeof(inst->sample_buffer));
+      rbn_result result = rbn_render_block(inst, inst->sample_buffer);
+      if(result != rbn_success) {
         return result;
       }
+
       inst->sample_index += RBN_BLOCK_SAMPLES;
     }
     return rbn_success;
