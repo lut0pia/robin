@@ -24,14 +24,14 @@ int rbncli_play_mid(int argc, char** argv) {
   rbn_reset(&inst);
 
   tml_message* current_msg = mid_seq;
-  uint32_t current_time = 0;
+  uint64_t current_time = 0;
   while(current_msg) {
     rbncli_progress_bar((uint32_t)((current_time * 100) / total_time), &progress);
 
-    int32_t time_to_wait = current_msg->time - current_time;
+    int64_t time_to_wait = current_msg->time - current_time;
     if(time_to_wait > 0) {
       const uint64_t previous_time_us = rbncli_get_time();
-      rbncli_sleep(time_to_wait);
+      rbncli_sleep((uint32_t)time_to_wait);
       const uint64_t elapsed_time_us = rbncli_get_time() - previous_time_us;
       current_time += elapsed_time_us / 1000;
     }

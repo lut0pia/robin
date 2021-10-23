@@ -12,6 +12,14 @@ else()
   link_libraries(m dl pthread)
 endif()
 
+# Warnings and errors
+if(MSVC)
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+  add_compile_options(/WX)
+else()
+  add_compile_options(-Werror)
+endif()
+
 add_executable(rbncli ${SOURCES})
 
 set_target_properties(

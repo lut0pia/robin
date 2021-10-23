@@ -21,7 +21,7 @@ static tml_message* demo_sequence() {
     for(uintptr_t i = 0; i < 128; i++) {
       cur->time = time;
       cur->type = TML_PROGRAM_CHANGE;
-      cur->program = i;
+      cur->program = (char)i;
       cur++;
       for(uintptr_t j = 0; j < 3; j++) {
         char key = 60 + chord[j];
@@ -45,7 +45,7 @@ static tml_message* demo_sequence() {
         cur->time = time;
         cur->type = TML_NOTE_ON;
         cur->channel = 9;
-        cur->key = i;
+        cur->key = (char)i;
         cur->velocity = 127;
         cur++;
 

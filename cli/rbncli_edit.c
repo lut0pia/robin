@@ -39,7 +39,7 @@ static void print_op_mod(rbn_program* prg, uintptr_t op_index) {
 
 static void print_matrix(rbn_program* prg) {
   for(uintptr_t i = 0; i < RBN_OPERATOR_COUNT; i++) {
-    printf("Op: %d\t", i);
+    printf("Op: %llu\t", i);
     print_op_mod(prg, i);
     printf("Out:%.2f\n", prg->operators[i].output);
   }
@@ -163,7 +163,7 @@ int rbncli_edit_prg(int argc, char** argv) {
   int playing_note = 0;
   rbncli_edit_state state = rces_prg;
 
-  rbn_set_program(&inst, 0, prg_index);
+  rbn_set_program(&inst, 0, (uint8_t)prg_index);
 
   do {
     rbn_program* prg = inst.programs + prg_index;
@@ -174,7 +174,7 @@ int rbncli_edit_prg(int argc, char** argv) {
     rbncli_clear_screen();
     printf("%d\n", c);
     // Header
-    printf("Program: %d\n", prg_index);
+    printf("Program: %llu\n", prg_index);
 
     // Matrix
     switch(state) {
@@ -182,7 +182,7 @@ int rbncli_edit_prg(int argc, char** argv) {
         print_matrix(prg);
         break;
       case rces_op:
-        printf("  Operator: %d\n", op_index);
+        printf("  Operator: %llu\n", op_index);
         printf("    Offset: %f\n", op->freq_offset);
         printf("    Ratio:  %f\n", op->freq_ratio);
         printf("    Noise:  %f\n", op->noise);
@@ -197,38 +197,38 @@ int rbncli_edit_prg(int argc, char** argv) {
         print_envelope(&prg->operators[op_index].pitch_envelope);
         break;
       case rces_op_ratio:
-        printf("  Operator: %d\n", op_index);
+        printf("  Operator: %llu\n", op_index);
         printf("    Ratio:  %f\n", op->freq_ratio);
         break;
       case rces_op_noise:
-        printf("  Operator: %d\n", op_index);
+        printf("  Operator: %llu\n", op_index);
         printf("    Noise:  %f\n", op->noise);
         break;
       case rces_op_output:
-        printf("  Operator: %d\n", op_index);
+        printf("  Operator: %llu\n", op_index);
         printf("    Output: %f\n", op->output);
         break;
       case rces_op_modulation:
-        printf("  Operator: %d\n", op_index);
-        printf("  to operator: %d\n", op_mod_index);
+        printf("  Operator: %llu\n", op_index);
+        printf("  to operator: %llu\n", op_mod_index);
         printf("    Modulation: %f\n", prg->op_matrix[op_index][op_mod_index]);
         break;
       case rces_op_env:
-        printf("  Operator: %d\n", op_index);
+        printf("  Operator: %llu\n", op_index);
         printf("    %s envelope:\n", env_name);
         print_envelope(env);
         break;
       case rces_op_env_release:
-        printf("  Operator: %d\n", op_index);
+        printf("  Operator: %llu\n", op_index);
         printf("    %s envelope:\n", env_name);
         print_envelope(env);
         printf("Release: %f\n", env->release_time);
         break;
       case rces_op_env_point:
-        printf("  Operator: %d\n", op_index);
+        printf("  Operator: %llu\n", op_index);
         printf("    %s envelope:\n", env_name);
         print_envelope(env);
-        printf("Point %d: (%f;%f)\n", env_point_index, env->points[env_point_index].time, env->points[env_point_index].value);
+        printf("Point %llu: (%f;%f)\n", env_point_index, env->points[env_point_index].time, env->points[env_point_index].value);
         break;
       default: break;
     }
