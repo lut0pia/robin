@@ -1,7 +1,7 @@
 # CMake
-cli/bld
+bld
 
 # Artefacts
-cli/export.c
+export.c
 *.wav
 *.mid
