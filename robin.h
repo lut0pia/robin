@@ -329,8 +329,10 @@ extern "C" {
     float* pitches = voice->pitches;
 
     for(uintptr_t i = 0; i < RBN_OPERATOR_COUNT; i++) {
-      rbn_compute_envelope(inst, voice, &operators[i].volume_envelope, volumes[i], volume_rates + i);
-      rbn_compute_envelope(inst, voice, &operators[i].pitch_envelope, pitches[i], pitch_rates + i);
+      if(RBN_OPERATOR_USED(program, i)) {
+        rbn_compute_envelope(inst, voice, &operators[i].volume_envelope, volumes[i], volume_rates + i);
+        rbn_compute_envelope(inst, voice, &operators[i].pitch_envelope, pitches[i], pitch_rates + i);
+      }
     }
 
     for(uintptr_t i = 0; i < RBN_BLOCK_SAMPLES; i++) {
