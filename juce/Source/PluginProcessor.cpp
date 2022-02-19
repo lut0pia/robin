@@ -114,6 +114,7 @@ void RobinAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::M
   for(const auto metadata : midiMessages) {
     outputConfig.sample_count = metadata.samplePosition - currentSample;
     rbn_render(&robinInstance, &outputConfig);
+    currentSample = metadata.samplePosition;
 
     juce::MidiMessage juceMessage = metadata.getMessage();
     rbn_msg robinMessage {};
