@@ -539,13 +539,10 @@ extern "C" {
       rbn_voice* voice = inst->voices + i;
       const int active = voice->inactive_index > inst->sample_index;
       if(!active) {
+        RBN_MEMSET(voice, 0, sizeof(rbn_voice));
         voice->inactive_index = UINT64_MAX;
         voice->press_index = inst->sample_index;
         voice->release_index = UINT64_MAX;
-        RBN_MEMSET(voice->phases, 0, sizeof(float) * RBN_OPERATOR_COUNT);
-        RBN_MEMSET(voice->values, 0, sizeof(float) * RBN_OPERATOR_COUNT);
-        RBN_MEMSET(voice->volumes, 0, sizeof(float) * RBN_OPERATOR_COUNT);
-        RBN_MEMSET(voice->pitches, 0, sizeof(float) * RBN_OPERATOR_COUNT);
         voice->program = inst->programs + inst->channels[channel].program;
         voice->channel = channel;
         voice->key = key;
