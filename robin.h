@@ -461,7 +461,7 @@ extern "C" {
     for(uintptr_t i = 0; i < RBN_PROGRAM_COUNT; i++) {
       rbn_program* program = inst->programs + i;
       program->sustain_samples = 0;
-      program->release_samples = 0;
+      program->release_samples = RBN_BLOCK_SAMPLES;
       program->operator_usage_mask = 0;
       for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
         rbn_operator* op = program->operators + j;
