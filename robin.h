@@ -137,9 +137,9 @@ extern "C" {
     uint64_t inactive_index;
     rbn_program* program;
     float base_freq_rate;
+    float velocity;
     uint8_t channel;
     uint8_t key;
-    uint8_t velocity;
   } rbn_voice;
 
   typedef struct rbn_channel {
@@ -321,7 +321,7 @@ extern "C" {
     float pitch_rates[RBN_OPERATOR_COUNT];
 
     const float base_freq_rate = voice->base_freq_rate;
-    const float velocity = voice->velocity / 127.f;
+    const float velocity = voice->velocity;
 
     const rbn_program* program = voice->program;
     const rbn_operator* operators = program->operators;
@@ -579,7 +579,7 @@ extern "C" {
         voice->program = inst->programs + inst->channels[channel].program;
         voice->channel = channel;
         voice->key = key;
-        voice->velocity = velocity;
+        voice->velocity = velocity / 127.f;
 #ifdef RBN_KEYMAP_CHANNEL
         if(channel == RBN_KEYMAP_CHANNEL) {
           voice->key = 60;
