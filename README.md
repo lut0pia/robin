@@ -25,4 +25,17 @@ To use the General MIDI configuration, include `robin_general.h` in place of `ro
 
 ### Building
 
-You can use CMake to build the [cli/](cli) source folder.
+You can use [CMake](https://cmake.org/) to build the [cli](cli) source folder.
+
+### Usage
+
+- `play [file]` will directly play a `.mid` file
+- `render [file]` will render the audio of a `.mid` file into a `.wav` file
+- `edit [program_index]` will open a crude program editor
+- `export [program_index]` will export the program to `export.c`
+
+## JUCE plugin
+
+### Building
+
+You need to install [Projucer](https://juce.com) to open the `.jucer` project file in the [juce](juce) folder.
