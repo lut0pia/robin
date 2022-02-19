@@ -124,6 +124,7 @@ extern "C" {
     // Cached
     uint64_t sustain_samples;
     uint64_t release_samples;
+    uint32_t operator_usage_mask;
   } rbn_program;
 
   typedef struct rbn_voice {
@@ -225,6 +226,8 @@ extern "C" {
 #define RBN_PI 3.1416f
 #define RBN_TAU 6.2832f
 #define RBN_INV_TAU (1.f/6.2832f)
+
+#define RBN_OPERATOR_USED(prg, op) (prg->operator_usage_mask & (1 << op))
 
 #ifndef RBN_SIN
 #include <math.h>
@@ -332,9 +335,14 @@ extern "C" {
 
     for(uintptr_t i = 0; i < RBN_BLOCK_SAMPLES; i++) {
       for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
+        if(!RBN_OPERATOR_USED(program, j)) {
+          continue; // Unused operator
+        }
         float phase = voice->phases[j];
         for(uintptr_t k = 0; k < RBN_OPERATOR_COUNT; k++) {
-          phase += program->op_matrix[k][j] * voice->values[k] * RBN_INV_TAU;
+          if(RBN_OPERATOR_USED(program, k)) {
+            phase += program->op_matrix[k][j] * voice->values[k] * RBN_INV_TAU;
+          }
         }
 
         const float noisef = program->operators[j].noise;
@@ -344,6 +352,9 @@ extern "C" {
       }
 
       for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
+        if(!RBN_OPERATOR_USED(program, j)) {
+          continue; // Unused operator
+        }
         const float value = values[j] * operators[j].output * velocity;
         samples[i * 2 + 0] += value * channel->volume[0];
         samples[i * 2 + 1] += value * channel->volume[1];
@@ -355,7 +366,9 @@ extern "C" {
     }
 
     for(uintptr_t i = 0; i < RBN_OPERATOR_COUNT; i++) {
-      voice->phases[i] = fmodf(voice->phases[i], 1.f);
+      if(RBN_OPERATOR_USED(program, i)) {
+        voice->phases[i] = fmodf(voice->phases[i], 1.f);
+      }
     }
 
     inst->rendered_samples += RBN_BLOCK_SAMPLES;
@@ -449,6 +462,7 @@ extern "C" {
       rbn_program* program = inst->programs + i;
       program->sustain_samples = 0;
       program->release_samples = 0;
+      program->operator_usage_mask = 0;
       for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
         rbn_operator* op = program->operators + j;
 
@@ -467,6 +481,23 @@ extern "C" {
             if(sustain_samples > program->sustain_samples) {
               program->sustain_samples = sustain_samples;
             }
+          }
+        }
+
+        // Check operator usage
+        if(op->output > 0.f) {
+          program->operator_usage_mask |= 1 << j;
+        }
+      }
+
+      // Recurse operator usage via matrix
+      for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
+        for(uintptr_t k = 0; k < RBN_OPERATOR_COUNT; k++) {
+          if((program->operator_usage_mask & (1 << j))
+            && !(program->operator_usage_mask & (1 << k))
+            && program->op_matrix[k][j]) {
+            program->operator_usage_mask |= 1 << k;
+            j = k = j > k ? j : k;
           }
         }
       }
