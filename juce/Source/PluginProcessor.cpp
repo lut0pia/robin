@@ -63,6 +63,8 @@ void RobinAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) 
   robinInstance.programs[0].operators[0].freq_ratio = 1.f;
   robinInstance.programs[0].operators[0].output = 1.f;
   robinInstance.programs[0].operators[0].volume_envelope.points[0].value = 1.f;
+  
+  rbn_refresh(&robinInstance);
 
   createValueTreeFromRobin();
 }
