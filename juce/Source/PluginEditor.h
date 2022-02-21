@@ -8,7 +8,7 @@
 
 class RobinAudioProcessorEditor : public juce::AudioProcessorEditor, public juce::Slider::Listener {
 public:
-  RobinAudioProcessorEditor(RobinAudioProcessor&);
+  RobinAudioProcessorEditor(RobinAudioProcessor& processor, juce::ValueTree tree, juce::UndoManager* undoManager);
   ~RobinAudioProcessorEditor() override;
   void selectOperator(uint8_t index);
   void updateFromRobin();
@@ -24,6 +24,9 @@ private:
   // This reference is provided as a quick way for your editor to
   // access the processor object that created it.
   RobinAudioProcessor& audioProcessor;
+  juce::ValueTree tree;
+  juce::ValueTree operatorsTree;
+  juce::UndoManager* undoManager;
 
   //==============================================================================
   int operatorIndex = 0;

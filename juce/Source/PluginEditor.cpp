@@ -2,8 +2,9 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-RobinAudioProcessorEditor::RobinAudioProcessorEditor(RobinAudioProcessor& p)
-  : AudioProcessorEditor(&p), audioProcessor(p) {
+RobinAudioProcessorEditor::RobinAudioProcessorEditor(RobinAudioProcessor& processor, juce::ValueTree tree, juce::UndoManager* undoManager)
+  : AudioProcessorEditor(&processor), audioProcessor(processor), tree(tree), undoManager(undoManager) {
+  operatorsTree = tree.getChildWithName("Operators");
   for(uintptr_t i = 0; i < RBN_OPERATOR_COUNT; i++) {
     std::shared_ptr<juce::TextButton> opButton = std::make_shared<juce::TextButton>();
     { // Set its title
@@ -22,7 +23,8 @@ RobinAudioProcessorEditor::RobinAudioProcessorEditor(RobinAudioProcessor& p)
     addAndMakeVisible(*opButton);
     operatorButtons.add(opButton);
 
-    std::shared_ptr<RobinOperator> op = std::make_shared<RobinOperator>(audioProcessor.getCurrentProgramOperatorTree(i), audioProcessor.getUndoManager());
+    juce::ValueTree operatorTree = operatorsTree.getChild(operatorIndex);
+    std::shared_ptr<RobinOperator> op = std::make_shared<RobinOperator>(operatorTree, undoManager);
     addChildComponent(*op);
     operators.add(op);
   }
@@ -58,7 +60,7 @@ void RobinAudioProcessorEditor::selectOperator(uint8_t index) {
 void RobinAudioProcessorEditor::updateFromRobin() {
   for(uintptr_t i = 0; i < RBN_OPERATOR_COUNT; i++) {
     for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
-      operatorMatrix[i + j * 8]->setValue(audioProcessor.getCurrentProgramOperatorTree(i).getChildWithName("Modulations").getChild(j).getProperty("Value"));
+      operatorMatrix[i + j * 8]->setValue(operatorsTree.getChild(operatorIndex).getChildWithName("Modulations").getChild(j).getProperty("Value"));
     }
   }
 }
@@ -102,7 +104,7 @@ void RobinAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
     for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
       juce::Slider* operatorSlider = operatorMatrix[i + j * 8].get();
       if(slider == operatorSlider) {
-        audioProcessor.getCurrentProgramOperatorTree(i).getChildWithName("Modulations").getChild(j).setProperty("Value", slider->getValue(), audioProcessor.getUndoManager());
+        operatorsTree.getChild(operatorIndex).getChildWithName("Modulations").getChild(j).setProperty("Value", slider->getValue(), undoManager);
         return;
       }
     }

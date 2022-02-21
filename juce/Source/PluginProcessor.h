@@ -45,11 +45,6 @@ public:
   virtual void setCurrentProgramStateInformation(const void* data, int sizeInBytes) override;
 
   //==============================================================================
-  juce::UndoManager* getUndoManager();
-  juce::ValueTree getValueTree();
-  juce::ValueTree getCurrentProgramTree();
-  juce::ValueTree getCurrentProgramOperatorTree(int operatorIndex);
-  juce::ValueTree getCurrentProgramOperatorMatrix(int operatorIndex, int i, int j);
   virtual void valueTreePropertyChanged(juce::ValueTree& treeWhosePropertyHasChanged, const juce::Identifier& property) override;
   void createValueTreeFromRobin();
   void updateRobinFromValueTree();

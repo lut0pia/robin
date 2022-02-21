@@ -136,7 +136,7 @@ bool RobinAudioProcessor::hasEditor() const {
 
 juce::AudioProcessorEditor* RobinAudioProcessor::createEditor() {
   //return new juce::GenericAudioProcessorEditor(*this);
-  return new RobinAudioProcessorEditor(*this);
+  return new RobinAudioProcessorEditor(*this, valueTree.getChild(getCurrentProgram()), &undoManager);
 }
 
 //==============================================================================
@@ -159,21 +159,6 @@ void RobinAudioProcessor::setCurrentProgramStateInformation(const void* data, in
 }
 
 //==============================================================================
-juce::UndoManager* RobinAudioProcessor::getUndoManager() {
-  return &undoManager;
-}
-juce::ValueTree RobinAudioProcessor::getValueTree() {
-  return valueTree;
-}
-juce::ValueTree RobinAudioProcessor::getCurrentProgramTree() {
-  return valueTree.getChild(getCurrentProgram());
-}
-juce::ValueTree RobinAudioProcessor::getCurrentProgramOperatorTree(int operatorIndex) {
-  return getCurrentProgramTree().getChildWithName("Operators").getChild(operatorIndex);
-}
-juce::ValueTree RobinAudioProcessor::getCurrentProgramOperatorMatrix(int operatorIndex, int i, int j) {
-  return valueTree;
-}
 void RobinAudioProcessor::valueTreePropertyChanged(juce::ValueTree& treeWhosePropertyHasChanged, const juce::Identifier& property) {
   updateRobinFromValueTree();
 }
