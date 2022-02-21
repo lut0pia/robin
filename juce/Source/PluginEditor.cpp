@@ -63,7 +63,7 @@ void RobinAudioProcessorEditor::updateFromValueTree() {
   }
   for(uintptr_t i = 0; i < RBN_OPERATOR_COUNT; i++) {
     for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
-      operatorMatrix[i + j * 8]->setValue(operatorsTree.getChild(operatorIndex).getChildWithName("Modulations").getChild(j).getProperty("Value"));
+      operatorMatrix[i + j * 8]->setValue(operatorsTree.getChild(i).getChildWithName("Modulations").getChild(j).getProperty("Value"));
     }
   }
 }
@@ -107,7 +107,7 @@ void RobinAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
     for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
       juce::Slider* operatorSlider = operatorMatrix[i + j * 8].get();
       if(slider == operatorSlider) {
-        operatorsTree.getChild(operatorIndex).getChildWithName("Modulations").getChild(j).setProperty("Value", slider->getValue(), undoManager);
+        operatorsTree.getChild(i).getChildWithName("Modulations").getChild(j).setProperty("Value", slider->getValue(), undoManager);
         return;
       }
     }

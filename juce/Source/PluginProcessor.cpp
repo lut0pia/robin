@@ -252,7 +252,7 @@ void RobinAudioProcessor::updateRobinFromValueTree() {
 
       juce::ValueTree modulationsTree = operatorTree.getChildWithName("Modulations");
       for(int modulationIndex = 0; modulationIndex < RBN_OPERATOR_COUNT; modulationIndex++) {
-        juce::ValueTree modulationTree = modulationsTree.getChild(operatorIndex);
+        juce::ValueTree modulationTree = modulationsTree.getChild(modulationIndex);
         program->op_matrix[operatorIndex][modulationIndex] = modulationTree.getProperty("Value");
       }
     }
