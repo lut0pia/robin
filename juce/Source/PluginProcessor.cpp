@@ -180,7 +180,6 @@ void RobinAudioProcessor::valueTreePropertyChanged(juce::ValueTree& treeWhosePro
 void RobinAudioProcessor::createValueTreeFromRobin() {
   //  Robin
   //    Program+
-  //      Index
   //      Operators+ [FreqOffset, FreqRatio, Noise, Output]
   //        Envelope+ [Name]
   //          Point+ [Time, Value]
@@ -190,7 +189,6 @@ void RobinAudioProcessor::createValueTreeFromRobin() {
   for(int programIndex = 0; programIndex < getNumPrograms(); programIndex++) {
     juce::ValueTree programTree("Program");
     rbn_program* program = robinInstance.programs + programIndex;
-    programTree.setProperty("Index", programIndex, &undoManager);
 
     juce::ValueTree operatorsTree("Operators");
     for(int operatorIndex = 0; operatorIndex < RBN_OPERATOR_COUNT; operatorIndex++) {
