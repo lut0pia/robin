@@ -7,6 +7,7 @@ class RobinOperator : public juce::GroupComponent, public juce::Slider::Listener
 public:
   RobinOperator(juce::ValueTree tree, juce::UndoManager* undoManager);
   ~RobinOperator() override;
+  void updateFromValueTree();
 
   //==============================================================================
   void resized() override;

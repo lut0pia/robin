@@ -37,13 +37,19 @@ RobinOperator::RobinOperator(juce::ValueTree tree, juce::UndoManager* undoManage
   volumeEnvelope.setText("Volume Envelope");
   addAndMakeVisible(volumeEnvelope);
 
+  updateFromValueTree();
+}
+
+RobinOperator::~RobinOperator() {
+}
+
+void RobinOperator::updateFromValueTree() {
   frequencyOffset.setValue(tree.getProperty("FreqOffset"));
   frequencyRatio.setValue(tree.getProperty("FreqRatio"));
   noise.setValue(tree.getProperty("Noise"));
   output.setValue(tree.getProperty("Output"));
-}
 
-RobinOperator::~RobinOperator() {
+  volumeEnvelope.repaint();
 }
 
 //==============================================================================

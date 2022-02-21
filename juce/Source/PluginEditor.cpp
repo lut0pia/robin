@@ -42,7 +42,7 @@ RobinAudioProcessorEditor::RobinAudioProcessorEditor(RobinAudioProcessor& proces
     operatorMatrix.add(slider);
   }
 
-  updateFromRobin();
+  updateFromValueTree();
   operatorButtons[0]->setState(juce::Button::ButtonState::buttonDown);
 
   setSize(1024, 512);
@@ -57,7 +57,10 @@ void RobinAudioProcessorEditor::selectOperator(uint8_t index) {
   operatorIndex = index;
   operators[index]->setVisible(true);
 }
-void RobinAudioProcessorEditor::updateFromRobin() {
+void RobinAudioProcessorEditor::updateFromValueTree() {
+  for(uintptr_t i = 0; i < RBN_OPERATOR_COUNT; i++) {
+    operators[i]->updateFromValueTree();
+  }
   for(uintptr_t i = 0; i < RBN_OPERATOR_COUNT; i++) {
     for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
       operatorMatrix[i + j * 8]->setValue(operatorsTree.getChild(operatorIndex).getChildWithName("Modulations").getChild(j).getProperty("Value"));

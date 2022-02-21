@@ -11,7 +11,7 @@ public:
   RobinAudioProcessorEditor(RobinAudioProcessor& processor, juce::ValueTree tree, juce::UndoManager* undoManager);
   ~RobinAudioProcessorEditor() override;
   void selectOperator(uint8_t index);
-  void updateFromRobin();
+  void updateFromValueTree();
 
   //==============================================================================
   void paint(juce::Graphics&) override;
