@@ -147,8 +147,7 @@ void RobinAudioProcessor::getStateInformation(juce::MemoryBlock& destData) {
 
 static bool copyValueTree(juce::ValueTree& target, const juce::ValueTree& source, juce::UndoManager* undoManager) {
   if(target.getType() != source.getType()
-    || target.getNumChildren() != source.getNumChildren()
-    || target.getNumProperties() != source.getNumProperties()) {
+    || target.getNumChildren() != source.getNumChildren()) {
     return false;
   }
 
@@ -156,9 +155,11 @@ static bool copyValueTree(juce::ValueTree& target, const juce::ValueTree& source
     copyValueTree(target.getChild(i), source.getChild(i), undoManager);
   }
 
-  for(int i = 0; i < source.getNumProperties(); i++) {
-    juce::Identifier id = source.getPropertyName(i);
-    target.setProperty(id, source.getProperty(id), undoManager);
+  for(int i = 0; i < target.getNumProperties(); i++) {
+    juce::Identifier id = target.getPropertyName(i);
+    if(source.hasProperty(id)) {
+      target.setProperty(id, source.getProperty(id), undoManager);
+    }
   }
 
   return true;
