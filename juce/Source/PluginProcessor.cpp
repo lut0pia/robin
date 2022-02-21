@@ -63,7 +63,7 @@ void RobinAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) 
   robinInstance.programs[0].operators[0].freq_ratio = 1.f;
   robinInstance.programs[0].operators[0].output = 1.f;
   robinInstance.programs[0].operators[0].volume_envelope.points[0].value = 1.f;
-  
+
   rbn_refresh(&robinInstance);
 
   createValueTreeFromRobin();
@@ -141,21 +141,36 @@ juce::AudioProcessorEditor* RobinAudioProcessor::createEditor() {
 
 //==============================================================================
 void RobinAudioProcessor::getStateInformation(juce::MemoryBlock& destData) {
-  destData.append(&robinInstance, sizeof(rbn_instance));
+  std::unique_ptr<juce::XmlElement> xml(valueTree.createXml());
+  copyXmlToBinary(*xml, destData);
 }
 
-void RobinAudioProcessor::getCurrentProgramStateInformation(juce::MemoryBlock& destData) {
-  destData.append(robinInstance.programs, sizeof(rbn_program));
+static bool copyValueTree(juce::ValueTree& target, const juce::ValueTree& source, juce::UndoManager* undoManager) {
+  if(target.getType() != source.getType()
+    || target.getNumChildren() != source.getNumChildren()
+    || target.getNumProperties() != source.getNumProperties()) {
+    return false;
+  }
+
+  for(int i = 0; i < source.getNumChildren(); i++) {
+    copyValueTree(target.getChild(i), source.getChild(i), undoManager);
+  }
+
+  for(int i = 0; i < source.getNumProperties(); i++) {
+    juce::Identifier id = source.getPropertyName(i);
+    target.setProperty(id, source.getProperty(id), undoManager);
+  }
+
+  return true;
 }
 
 void RobinAudioProcessor::setStateInformation(const void* data, int sizeInBytes) {
-  if(sizeInBytes == sizeof(rbn_instance)) {
-    memcpy(&robinInstance, data, sizeInBytes);
-  }
-}
+  std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+  juce::ValueTree newValueTree = juce::ValueTree::fromXml(*xmlState);
 
-void RobinAudioProcessor::setCurrentProgramStateInformation(const void* data, int sizeInBytes) {
-  memcpy(robinInstance.programs, data, sizeInBytes);
+  copyValueTree(valueTree, newValueTree, &undoManager);
+
+  ((RobinAudioProcessorEditor*)getActiveEditor())->updateFromValueTree();
 }
 
 //==============================================================================

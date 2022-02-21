@@ -40,9 +40,7 @@ public:
 
   //==============================================================================
   virtual void getStateInformation(juce::MemoryBlock& destData) override;
-  virtual void getCurrentProgramStateInformation(juce::MemoryBlock& destData) override;
   virtual void setStateInformation(const void* data, int sizeInBytes) override;
-  virtual void setCurrentProgramStateInformation(const void* data, int sizeInBytes) override;
 
   //==============================================================================
   virtual void valueTreePropertyChanged(juce::ValueTree& treeWhosePropertyHasChanged, const juce::Identifier& property) override;
