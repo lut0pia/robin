@@ -2,7 +2,9 @@
 
 <JUCERPROJECT id="RZOPTW" name="robin" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
-              pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn">
+              pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
+              companyWebsite="lutopia.net" companyName="Lutopia" pluginFormats="buildStandalone,buildVST,buildVST3"
+              pluginName="robin" pluginDesc="FM synth">
   <MAINGROUP id="FDjdVI" name="robin">
     <GROUP id="{0F9B6C50-CAC6-0393-51FD-774C10387831}" name="Source">
       <FILE id="Z8fH7C" name="Envelope.cpp" compile="1" resource="0" file="Source/Envelope.cpp"/>
