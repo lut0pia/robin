@@ -46,6 +46,7 @@ public:
   virtual void valueTreePropertyChanged(juce::ValueTree& treeWhosePropertyHasChanged, const juce::Identifier& property) override;
   void createValueTreeFromRobin();
   void updateRobinFromValueTree();
+  const rbn_instance& getRobinInstance() const;
 
 protected:
   //==============================================================================

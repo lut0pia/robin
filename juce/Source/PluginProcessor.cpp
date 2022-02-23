@@ -264,6 +264,10 @@ void RobinAudioProcessor::updateRobinFromValueTree() {
   rbn_refresh(&robinInstance);
 }
 
+const rbn_instance& RobinAudioProcessor::getRobinInstance() const {
+  return robinInstance;
+}
+
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
