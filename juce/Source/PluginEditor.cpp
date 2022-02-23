@@ -1,9 +1,12 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+#include "../../util/rbnutil_export.h"
+
 //==============================================================================
 RobinAudioProcessorEditor::RobinAudioProcessorEditor(RobinAudioProcessor& processor, juce::ValueTree tree, juce::UndoManager* undoManager)
-  : AudioProcessorEditor(&processor), audioProcessor(processor), tree(tree), undoManager(undoManager) {
+  : AudioProcessorEditor(&processor), audioProcessor(processor), tree(tree), undoManager(undoManager),
+  exportButton("Export") {
   operatorsTree = tree.getChildWithName("Operators");
   for(uintptr_t i = 0; i < RBN_OPERATOR_COUNT; i++) {
     std::shared_ptr<juce::TextButton> opButton = std::make_shared<juce::TextButton>();
@@ -69,6 +72,17 @@ void RobinAudioProcessorEditor::updateFromValueTree() {
 }
 
 //==============================================================================
+void RobinAudioProcessorEditor::parentHierarchyChanged() {
+  juce::DocumentWindow* window = findParentComponentOfClass<juce::DocumentWindow>();
+  if(window) {
+    window->Component::addAndMakeVisible(&exportButton);
+
+    exportButton.addListener(this);
+    exportButton.setTriggeredOnMouseDown(true);
+    exportButton.setBounds(76, 6, 60, window->getTitleBarHeight() - 8);
+  }
+}
+
 void RobinAudioProcessorEditor::paint(juce::Graphics& g) {
   g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 }
@@ -102,6 +116,28 @@ void RobinAudioProcessorEditor::resized() {
 }
 
 //==============================================================================
+void RobinAudioProcessorEditor::buttonClicked(juce::Button* button) {
+  if(button == &exportButton) {
+    exportFileChooser = std::make_unique<juce::FileChooser>(
+      "Please select where you want to export the program...",
+      juce::File::getSpecialLocation(juce::File::userHomeDirectory),
+      "*.c");
+
+    juce::FileBrowserComponent::FileChooserFlags flags = juce::FileBrowserComponent::saveMode;
+
+    exportFileChooser->launchAsync(flags,
+      [this](const juce::FileChooser& chooser) {
+        juce::File file = chooser.getResult();
+        juce::String fileName = file.getFullPathName(); // .replaceCharacter('\\', '/');
+        FILE* stream = fopen(fileName.getCharPointer(), "w");
+        if(stream) {
+          rbnutil_export(stream, audioProcessor.getRobinInstance().programs + audioProcessor.getCurrentProgram());
+          fclose(stream);
+        }
+      });
+  }
+}
+
 void RobinAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
   for(uintptr_t i = 0; i < RBN_OPERATOR_COUNT; i++) {
     for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {

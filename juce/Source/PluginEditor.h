@@ -6,7 +6,7 @@
 #include "Operator.h"
 #include "../../robin.h"
 
-class RobinAudioProcessorEditor : public juce::AudioProcessorEditor, public juce::Slider::Listener {
+class RobinAudioProcessorEditor : public juce::AudioProcessorEditor, public juce::Slider::Listener, public juce::Button::Listener {
 public:
   RobinAudioProcessorEditor(RobinAudioProcessor& processor, juce::ValueTree tree, juce::UndoManager* undoManager);
   ~RobinAudioProcessorEditor() override;
@@ -14,10 +14,12 @@ public:
   void updateFromValueTree();
 
   //==============================================================================
+  void parentHierarchyChanged() override;
   void paint(juce::Graphics&) override;
   void resized() override;
 
   //==============================================================================
+  virtual void buttonClicked(juce::Button*) override;
   virtual void sliderValueChanged(juce::Slider* slider) override;
 
 private:
@@ -27,6 +29,9 @@ private:
   juce::ValueTree tree;
   juce::ValueTree operatorsTree;
   juce::UndoManager* undoManager;
+
+  juce::TextButton exportButton;
+  std::unique_ptr<juce::FileChooser> exportFileChooser;
 
   //==============================================================================
   int operatorIndex = 0;
