@@ -3,10 +3,16 @@
 #include <JuceHeader.h>
 #include "Envelope.h"
 
+enum class RobinEnvelopeType {
+  Volume,
+  Pitch,
+};
+
 class RobinOperator : public juce::GroupComponent, public juce::Slider::Listener {
 public:
   RobinOperator(juce::ValueTree tree, juce::UndoManager* undoManager);
   ~RobinOperator() override;
+  void selectEnvelope(RobinEnvelopeType type);
   void updateFromValueTree();
 
   //==============================================================================
@@ -31,8 +37,11 @@ private:
   juce::Slider output;
   juce::Label outputLabel;
 
+  juce::TextButton volumeEnvelopeButton;
+  juce::TextButton pitchEnvelopeButton;
+
   RobinEnvelope volumeEnvelope;
-  //RobinEnvelope pitchEnvelope;
+  RobinEnvelope pitchEnvelope;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RobinOperator)
 };

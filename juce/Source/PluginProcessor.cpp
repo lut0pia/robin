@@ -169,6 +169,27 @@ static bool copyValueTree(juce::ValueTree& target, const juce::ValueTree& source
   return true;
 }
 
+static juce::ValueTree createEnvelopeValueTree(const juce::Identifier& id, rbn_envelope* envelope, juce::UndoManager& undoManager) {
+  juce::ValueTree envelopeTree(id);
+  envelopeTree.setProperty("ReleaseTime", envelope->release_time, &undoManager);
+  for(int pointIndex = 0; pointIndex < RBN_ENVPT_COUNT; pointIndex++) {
+    juce::ValueTree pointTree("Point");
+    pointTree.setProperty("Time", envelope->points[pointIndex].time, &undoManager);
+    pointTree.setProperty("Value", envelope->points[pointIndex].value, &undoManager);
+    envelopeTree.addChild(pointTree, pointIndex, &undoManager);
+  }
+  return envelopeTree;
+}
+
+static void updateEnvelopeFromValueTree(rbn_envelope* envelope, const juce::ValueTree& envelopeTree) {
+  envelope->release_time = envelopeTree.getProperty("ReleaseTime");
+  for(int pointIndex = 0; pointIndex < RBN_ENVPT_COUNT; pointIndex++) {
+    juce::ValueTree pointTree = envelopeTree.getChild(pointIndex);
+    envelope->points[pointIndex].time = pointTree.getProperty("Time");
+    envelope->points[pointIndex].value = pointTree.getProperty("Value");
+  }
+}
+
 void RobinAudioProcessor::setStateInformation(const void* data, int sizeInBytes) {
   std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
   juce::ValueTree newValueTree = juce::ValueTree::fromXml(*xmlState);
@@ -204,15 +225,11 @@ void RobinAudioProcessor::createValueTreeFromRobin() {
       operatorTree.setProperty("Noise", op->noise, &undoManager);
       operatorTree.setProperty("Output", op->output, &undoManager);
 
-      juce::ValueTree volumeEnvelopeTree("VolumeEnvelope");
-      volumeEnvelopeTree.setProperty("ReleaseTime", op->volume_envelope.release_time, &undoManager);
-      for(int pointIndex = 0; pointIndex < RBN_ENVPT_COUNT; pointIndex++) {
-        juce::ValueTree pointTree("Point");
-        pointTree.setProperty("Time", op->volume_envelope.points[pointIndex].time, &undoManager);
-        pointTree.setProperty("Value", op->volume_envelope.points[pointIndex].value, &undoManager);
-        volumeEnvelopeTree.addChild(pointTree, pointIndex, &undoManager);
-      }
+      juce::ValueTree volumeEnvelopeTree(createEnvelopeValueTree("VolumeEnvelope", &op->volume_envelope, undoManager));
       operatorTree.appendChild(volumeEnvelopeTree, &undoManager);
+
+      juce::ValueTree pitchEnvelopeTree(createEnvelopeValueTree("PitchEnvelope", &op->pitch_envelope, undoManager));
+      operatorTree.appendChild(pitchEnvelopeTree, &undoManager);
 
       juce::ValueTree modulationsTree("Modulations");
       for(int modulationIndex = 0; modulationIndex < RBN_OPERATOR_COUNT; modulationIndex++) {
@@ -245,13 +262,8 @@ void RobinAudioProcessor::updateRobinFromValueTree() {
       op->noise = operatorTree.getProperty("Noise");
       op->output = operatorTree.getProperty("Output");
 
-      juce::ValueTree volumeEnvelopeTree = operatorTree.getChildWithName("VolumeEnvelope");
-      op->volume_envelope.release_time = volumeEnvelopeTree.getProperty("ReleaseTime");
-      for(int pointIndex = 0; pointIndex < RBN_ENVPT_COUNT; pointIndex++) {
-        juce::ValueTree pointTree = volumeEnvelopeTree.getChild(pointIndex);
-        op->volume_envelope.points[pointIndex].time = pointTree.getProperty("Time");
-        op->volume_envelope.points[pointIndex].value = pointTree.getProperty("Value");
-      }
+      updateEnvelopeFromValueTree(&op->volume_envelope, operatorTree.getChildWithName("VolumeEnvelope"));
+      updateEnvelopeFromValueTree(&op->pitch_envelope, operatorTree.getChildWithName("PitchEnvelope"));
 
       juce::ValueTree modulationsTree = operatorTree.getChildWithName("Modulations");
       for(int modulationIndex = 0; modulationIndex < RBN_OPERATOR_COUNT; modulationIndex++) {

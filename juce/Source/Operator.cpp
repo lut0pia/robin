@@ -2,7 +2,8 @@
 
 //==============================================================================
 RobinOperator::RobinOperator(juce::ValueTree tree, juce::UndoManager* undoManager)
-  : volumeEnvelope(tree.getChildWithName("VolumeEnvelope"), undoManager) {
+  : volumeEnvelope(tree.getChildWithName("VolumeEnvelope"), undoManager),
+  pitchEnvelope(tree.getChildWithName("PitchEnvelope"), undoManager) {
   this->tree = tree;
   this->undoManager = undoManager;
 
@@ -34,13 +35,50 @@ RobinOperator::RobinOperator(juce::ValueTree tree, juce::UndoManager* undoManage
   output.addListener(this);
   addAndMakeVisible(output);
 
+  volumeEnvelopeButton.setButtonText("Volume");
+  volumeEnvelopeButton.setClickingTogglesState(true);
+  volumeEnvelopeButton.setRadioGroupId(1002);
+  volumeEnvelopeButton.onStateChange = [this]() {
+    if(volumeEnvelopeButton.getState() == juce::Button::ButtonState::buttonDown) {
+      selectEnvelope(RobinEnvelopeType::Volume);
+    }
+  };
+  addAndMakeVisible(volumeEnvelopeButton);
+
+  pitchEnvelopeButton.setButtonText("Pitch");
+  pitchEnvelopeButton.setClickingTogglesState(true);
+  pitchEnvelopeButton.setRadioGroupId(1002);
+  pitchEnvelopeButton.onStateChange = [this]() {
+    if(pitchEnvelopeButton.getState() == juce::Button::ButtonState::buttonDown) {
+      selectEnvelope(RobinEnvelopeType::Pitch);
+    }
+  };
+  addAndMakeVisible(pitchEnvelopeButton);
+
   volumeEnvelope.setText("Volume Envelope");
   addAndMakeVisible(volumeEnvelope);
 
+  pitchEnvelope.setText("Pitch Envelope");
+  addChildComponent(pitchEnvelope);
+
   updateFromValueTree();
+  volumeEnvelopeButton.setState(juce::Button::ButtonState::buttonDown);
 }
 
 RobinOperator::~RobinOperator() {
+}
+
+void RobinOperator::selectEnvelope(RobinEnvelopeType type) {
+  volumeEnvelope.setVisible(false);
+  pitchEnvelope.setVisible(false);
+  switch(type) {
+    case RobinEnvelopeType::Volume:
+      volumeEnvelope.setVisible(true);
+      break;
+    case RobinEnvelopeType::Pitch:
+      pitchEnvelope.setVisible(true);
+      break;
+  }
 }
 
 void RobinOperator::updateFromValueTree() {
@@ -50,6 +88,7 @@ void RobinOperator::updateFromValueTree() {
   output.setValue(tree.getProperty("Output"));
 
   volumeEnvelope.repaint();
+  pitchEnvelope.repaint();
 }
 
 //==============================================================================
@@ -62,8 +101,16 @@ void RobinOperator::resized() {
     output.setBounds(panelBounds.removeFromTop(32));
   }
 
+  { // Envelope buttons
+    auto buttonBounds = getLocalBounds().reduced(2).removeFromBottom(128).translated(0, -20);
+    buttonBounds.setHeight(20);
+    volumeEnvelopeButton.setBounds(buttonBounds.getProportion(juce::Rectangle<float>{0.f, 0.f, 0.5f, 1.f}));
+    pitchEnvelopeButton.setBounds(buttonBounds.getProportion(juce::Rectangle<float>{0.5f, 0.f, 0.5f, 1.f}));
+  }
+
   { // Envelopes
     volumeEnvelope.setBounds(getLocalBounds().removeFromBottom(128).reduced(2));
+    pitchEnvelope.setBounds(getLocalBounds().removeFromBottom(128).reduced(2));
   }
 }
 
