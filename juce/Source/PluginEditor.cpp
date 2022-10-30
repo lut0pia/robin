@@ -50,6 +50,7 @@ RobinAudioProcessorEditor::RobinAudioProcessorEditor(RobinAudioProcessor& proces
 
   setSize(1024, 512);
   setResizable(true, true);
+  setResizeLimits(512, 256, 1 << 30, 1 << 30);
 }
 
 RobinAudioProcessorEditor::~RobinAudioProcessorEditor() {
