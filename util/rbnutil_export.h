@@ -19,12 +19,12 @@ static void export_envelope(FILE* stream, const rbn_envelope* env, const char* f
   for(uintptr_t i = 0; i < RBN_ENVPT_COUNT; i++) {
     if(env->points[i].time > 0.f || env->points[i].value > 0.f) {
       vfprintf(stream, fmt, va);
-      fprintf(stream, ".points[%llu].time = ", i);
+      fprintf(stream, ".points[%" PRIuPTR "].time = ", i);
       export_float(stream, env->points[i].time);
       fprintf(stream, ";\n");
 
       vfprintf(stream, fmt, va);
-      fprintf(stream, ".points[%llu].value = ", i);
+      fprintf(stream, ".points[%" PRIuPTR "].value = ", i);
       export_float(stream, env->points[i].value);
       fprintf(stream, ";\n");
     }
@@ -61,26 +61,26 @@ void rbnutil_export(FILE* stream, const rbn_program* prg) {
     }
 
     if(op->freq_ratio != 0.f) {
-      fprintf(stream, "prg->operators[%llu].freq_ratio = ", i);
+      fprintf(stream, "prg->operators[%" PRIuPTR "].freq_ratio = ", i);
       export_float(stream, op->freq_ratio);
       fprintf(stream, ";\n");
     }
     if(op->noise != 0.f) {
-      fprintf(stream, "prg->operators[%llu].noise = ", i);
+      fprintf(stream, "prg->operators[%" PRIuPTR "].noise = ", i);
       export_float(stream, op->noise);
       fprintf(stream, ";\n");
     }
     if(op->output != 0.f) {
-      fprintf(stream, "prg->operators[%llu].output = ", i);
+      fprintf(stream, "prg->operators[%" PRIuPTR "].output = ", i);
       export_float(stream, op->output);
       fprintf(stream, ";\n");
     }
-    export_envelope(stream, &op->volume_envelope, "prg->operators[%d].volume_envelope", i);
-    export_envelope(stream, &op->pitch_envelope, "prg->operators[%d].pitch_envelope", i);
+    export_envelope(stream, &op->volume_envelope, "prg->operators[%" PRIuPTR "].volume_envelope", i);
+    export_envelope(stream, &op->pitch_envelope, "prg->operators[%" PRIuPTR "].pitch_envelope", i);
 
     for(uintptr_t j = 0; j < RBN_OPERATOR_COUNT; j++) {
       if(prg->op_matrix[i][j] != 0.f) {
-        fprintf(stream, "prg->op_matrix[%llu][%llu] = ", i, j);
+        fprintf(stream, "prg->op_matrix[%" PRIuPTR "][%" PRIuPTR "] = ", i, j);
         export_float(stream, prg->op_matrix[i][j]);
         fprintf(stream, ";\n");
       }
