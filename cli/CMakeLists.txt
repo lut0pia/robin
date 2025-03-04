@@ -26,3 +26,5 @@ set_target_properties(
   rbncli PROPERTIES
   VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+install(TARGETS rbncli)
